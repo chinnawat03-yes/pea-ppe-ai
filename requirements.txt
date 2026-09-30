@@ -2,3 +2,5 @@ Flask
 inference-sdk
 Pillow
 gunicorn
+gspread
+google-auth

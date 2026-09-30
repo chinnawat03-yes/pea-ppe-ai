@@ -3,6 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
     <title>PEA PPE AI</title>
 
     <style>
@@ -10,22 +11,40 @@
             font-family: Arial, sans-serif;
             background: #f2f2f2;
             text-align: center;
-            padding: 30px;
+            padding: 20px;
         }
 
         .box {
             max-width: 700px;
             margin: auto;
             background: white;
-            padding: 30px;
+            padding: 25px;
             border-radius: 15px;
         }
 
-        button {
-            padding: 12px 25px;
-            margin-top: 15px;
+        h1 {
+            margin-bottom: 10px;
+        }
+
+        input[type="file"] {
+            display: block;
+            width: 100%;
+            margin: 20px 0;
             font-size: 16px;
+        }
+
+        button {
+            width: 100%;
+            padding: 15px;
+            margin-top: 10px;
+            font-size: 18px;
+            border: none;
+            border-radius: 10px;
             cursor: pointer;
+        }
+
+        button:active {
+            transform: scale(0.98);
         }
 
         img {
@@ -44,19 +63,18 @@
 
     <p>ระบบตรวจสอบอุปกรณ์ PPE ด้วย AI</p>
 
-    <form method="POST" enctype="multipart/form-data">
+    <form action="/" method="POST" enctype="multipart/form-data">
 
-    <input
-    type="file"
-    name="image"
-    accept="image/*"
-    required
->
-
-        <br>
+        <input
+            type="file"
+            id="image"
+            name="image"
+            accept="image/*"
+            required
+        >
 
         <button type="submit">
-            ตรวจสอบ PPE
+            🔍 ตรวจสอบ PPE
         </button>
 
     </form>
@@ -64,7 +82,10 @@
     {% if result_image %}
         <h2>ผลการตรวจสอบ</h2>
 
-        <img src="{{ url_for('static', filename='static_result.jpg') }}">
+        <img
+            src="{{ url_for('static', filename=result_image) }}"
+            alt="ผลการตรวจสอบ PPE"
+        >
     {% endif %}
 
 </div>

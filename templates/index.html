@@ -87,7 +87,7 @@
             margin-top: 15px;
         }
 
-        /* ปุ่มบันทึกผลตรวจ */
+        /* ปุ่มบันทึกผล */
         .save-button {
             display: block;
             width: 100%;
@@ -106,6 +106,56 @@
             opacity: 0.9;
         }
 
+        /* สรุป PPE */
+        .ppe-summary {
+            margin-top: 20px;
+            padding: 18px;
+            background: #f1f5f9;
+            border-radius: 12px;
+        }
+
+        .ppe-summary h3 {
+            margin-top: 0;
+            text-align: center;
+        }
+
+        .ppe-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+        }
+
+        .ppe-item {
+            background: white;
+            padding: 15px;
+            border-radius: 10px;
+            text-align: center;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+        }
+
+        .ppe-icon {
+            font-size: 30px;
+            margin-bottom: 8px;
+        }
+
+        .ppe-item strong {
+            display: block;
+            margin-bottom: 8px;
+        }
+
+        .found {
+            display: block;
+            color: #16803c;
+            font-weight: bold;
+        }
+
+        .not-found {
+            display: block;
+            color: #c62828;
+            font-weight: bold;
+        }
+
+        /* หมายเหตุ */
         .info {
             margin-top: 20px;
             padding: 15px;
@@ -119,6 +169,21 @@
             color: #777;
             font-size: 13px;
             margin: 25px 0;
+        }
+
+        /* มือถือ */
+        @media (max-width: 500px) {
+            .ppe-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .card {
+                padding: 18px;
+            }
+
+            .header h1 {
+                font-size: 24px;
+            }
         }
     </style>
 </head>
@@ -160,18 +225,20 @@
 
         </div>
 
+
         {% if result_image %}
 
         <div class="result">
 
             <h2>📋 ผลการตรวจสอบ</h2>
 
+            <!-- รูปผลตรวจ -->
             <img
                 src="{{ url_for('static', filename=result_image) }}"
                 alt="ผลการตรวจสอบ PPE"
             >
 
-            <!-- ปุ่มบันทึกผลตรวจ -->
+            <!-- ปุ่มบันทึก -->
             <a
                 href="{{ url_for('static', filename=result_image) }}"
                 download="PEA_PPE_Result.jpg"
@@ -180,7 +247,127 @@
                 💾 บันทึกผลตรวจ
             </a>
 
+
+            <!-- สรุปผล PPE -->
+            <div class="ppe-summary">
+
+                <h3>🤖 สรุปผลการตรวจจับ</h3>
+
+                {% set ns = namespace(
+                    helmet=None,
+                    vest=None,
+                    gloves=None,
+                    shoes=None
+                ) %}
+
+                {% for item in detected_items %}
+
+                    {% if item.class == "helmet" %}
+                        {% set ns.helmet = item.confidence %}
+
+                    {% elif item.class == "reflective_vest" %}
+                        {% set ns.vest = item.confidence %}
+
+                    {% elif item.class == "gloves" %}
+                        {% set ns.gloves = item.confidence %}
+
+                    {% elif item.class == "shoes" %}
+                        {% set ns.shoes = item.confidence %}
+
+                    {% endif %}
+
+                {% endfor %}
+
+
+                <div class="ppe-grid">
+
+                    <!-- Helmet -->
+                    <div class="ppe-item">
+
+                        <div class="ppe-icon">🪖</div>
+
+                        <strong>Helmet</strong>
+
+                        {% if ns.helmet %}
+                            <span class="found">
+                                ✓ พบ {{ "%.0f"|format(ns.helmet * 100) }}%
+                            </span>
+                        {% else %}
+                            <span class="not-found">
+                                ✕ ไม่พบ
+                            </span>
+                        {% endif %}
+
+                    </div>
+
+
+                    <!-- Vest -->
+                    <div class="ppe-item">
+
+                        <div class="ppe-icon">🦺</div>
+
+                        <strong>Reflective Vest</strong>
+
+                        {% if ns.vest %}
+                            <span class="found">
+                                ✓ พบ {{ "%.0f"|format(ns.vest * 100) }}%
+                            </span>
+                        {% else %}
+                            <span class="not-found">
+                                ✕ ไม่พบ
+                            </span>
+                        {% endif %}
+
+                    </div>
+
+
+                    <!-- Gloves -->
+                    <div class="ppe-item">
+
+                        <div class="ppe-icon">🧤</div>
+
+                        <strong>Gloves</strong>
+
+                        {% if ns.gloves %}
+                            <span class="found">
+                                ✓ พบ {{ "%.0f"|format(ns.gloves * 100) }}%
+                            </span>
+                        {% else %}
+                            <span class="not-found">
+                                ✕ ไม่พบ
+                            </span>
+                        {% endif %}
+
+                    </div>
+
+
+                    <!-- Shoes -->
+                    <div class="ppe-item">
+
+                        <div class="ppe-icon">👟</div>
+
+                        <strong>Shoes</strong>
+
+                        {% if ns.shoes %}
+                            <span class="found">
+                                ✓ พบ {{ "%.0f"|format(ns.shoes * 100) }}%
+                            </span>
+                        {% else %}
+                            <span class="not-found">
+                                ✕ ไม่พบ
+                            </span>
+                        {% endif %}
+
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <!-- หมายเหตุสีกรอบ -->
             <div class="info">
+
                 <strong>หมายเหตุ</strong>
 
                 <p>
@@ -189,6 +376,7 @@
                     กรอบสีเขียว = Gloves<br>
                     กรอบสีส้ม = Shoes
                 </p>
+
             </div>
 
         </div>
@@ -196,6 +384,7 @@
         {% endif %}
 
     </div>
+
 
     <div class="footer">
         PEA PPE AI • AI-based Personal Protective Equipment Detection

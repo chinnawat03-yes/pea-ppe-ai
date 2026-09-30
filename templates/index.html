@@ -87,33 +87,15 @@
             margin-top: 15px;
         }
 
-        /* ปุ่มบันทึกผล */
-        .save-button {
-            display: block;
-            width: 100%;
-            margin-top: 15px;
-            padding: 15px;
-            background: #ffd400;
-            color: #222;
-            text-decoration: none;
-            text-align: center;
-            border-radius: 10px;
-            font-size: 18px;
-            font-weight: bold;
-        }
+        /* ปุ่มต่าง ๆ */
 
-        .save-button:hover {
-            opacity: 0.9;
-        }
-
-        /* ปุ่มตรวจรูปใหม่ */
-        .new-button {
+        .save-button,
+        .new-button,
+        .history-button {
             display: block;
             width: 100%;
             margin-top: 10px;
             padding: 15px;
-            background: #005baa;
-            color: white;
             text-decoration: none;
             text-align: center;
             border-radius: 10px;
@@ -121,26 +103,28 @@
             font-weight: bold;
         }
 
-        .new-button:hover {
+        .save-button {
+            background: #ffd400;
+            color: #222;
+            margin-top: 15px;
+        }
+
+        .new-button {
+            background: #005baa;
+            color: white;
+        }
+
+        .history-button {
+            background: #333;
+            color: white;
+        }
+
+        .save-button:hover,
+        .new-button:hover,
+        .history-button:hover {
             opacity: 0.9;
         }
-.history-button {
-    display: block;
-    width: 100%;
-    margin-top: 10px;
-    padding: 15px;
-    background: #333;
-    color: white;
-    text-decoration: none;
-    text-align: center;
-    border-radius: 10px;
-    font-size: 18px;
-    font-weight: bold;
-}
 
-.history-button:hover {
-    opacity: 0.9;
-}
         /* =========================
            สถานะรวม PPE
            ========================= */
@@ -151,6 +135,14 @@
             border-radius: 14px;
             background: #f1f5f9;
             text-align: center;
+        }
+
+        .status-complete {
+            border: 3px solid #16803c;
+        }
+
+        .status-incomplete {
+            border: 3px solid #c62828;
         }
 
         .status-icon {
@@ -233,6 +225,7 @@
         }
 
         /* หมายเหตุ */
+
         .info {
             margin-top: 20px;
             padding: 15px;
@@ -249,6 +242,7 @@
         }
 
         /* มือถือ */
+
         @media (max-width: 500px) {
 
             .ppe-grid {
@@ -315,6 +309,7 @@
             <h2>📋 ผลการตรวจสอบ</h2>
 
             <!-- รูปผลตรวจ -->
+
             <img
                 src="{{ url_for('static', filename=result_image) }}"
                 alt="ผลการตรวจสอบ PPE"
@@ -322,6 +317,7 @@
 
 
             <!-- ปุ่มบันทึก -->
+
             <a
                 href="{{ url_for('static', filename=result_image) }}"
                 download="PEA_PPE_Result.jpg"
@@ -332,72 +328,45 @@
 
 
             <!-- ปุ่มตรวจรูปใหม่ -->
+
             <a
                 href="/"
                 class="new-button"
             >
                 🔄 ตรวจรูปใหม่
             </a>
-<a
-    href="/history"
-    class="history-button"
->
-    📊 ดูประวัติการตรวจ
-</a>
-
-            <!-- =================================
-                 คำนวณสถานะรวม
-                 ================================= -->
-
-            {% set ns = namespace(
-                helmet=None,
-                vest=None,
-                gloves=None,
-                shoes=None
-            ) %}
 
 
-            {% for item in detected_items %}
+            <!-- ปุ่มประวัติ -->
 
-                {% if item.class == "helmet" %}
-                    {% set ns.helmet = item.confidence %}
-
-                {% elif item.class == "reflective_vest" %}
-                    {% set ns.vest = item.confidence %}
-
-                {% elif item.class == "gloves" %}
-                    {% set ns.gloves = item.confidence %}
-
-                {% elif item.class == "shoes" %}
-                    {% set ns.shoes = item.confidence %}
-
-                {% endif %}
-
-            {% endfor %}
-
-
-            {% set total_found =
-                (1 if ns.helmet else 0)
-                + (1 if ns.vest else 0)
-                + (1 if ns.gloves else 0)
-                + (1 if ns.shoes else 0)
-            %}
+            <a
+                href="/history"
+                class="history-button"
+            >
+                📊 ดูประวัติการตรวจ
+            </a>
 
 
             <!-- =================================
                  สถานะรวม PPE
                  ================================= -->
 
-            <div class="status-box">
+            <div class="status-box
+                {% if status == 'ครบ' %}
+                    status-complete
+                {% else %}
+                    status-incomplete
+                {% endif %}
+            ">
 
-                {% if total_found == 4 %}
+                {% if status == "ครบ" %}
 
                     <div class="status-icon">
                         🟢
                     </div>
 
                     <div class="status-title">
-                        ตรวจพบ PPE ครบ
+                        PPE ครบทุกอุปกรณ์
                     </div>
 
                     <div class="status-count">
@@ -407,36 +376,15 @@
                 {% else %}
 
                     <div class="status-icon">
-                        🟠
+                        🔴
                     </div>
 
                     <div class="status-title">
-                        พบ PPE ไม่ครบ
+                        PPE ไม่ครบ
                     </div>
 
                     <div class="status-count">
-                        {{ total_found }} / 4 รายการ
-                    </div>
-
-
-                    <div class="missing">
-
-                        {% if not ns.helmet %}
-                            ⚠️ ขาด Helmet<br>
-                        {% endif %}
-
-                        {% if not ns.vest %}
-                            ⚠️ ขาด Reflective Vest<br>
-                        {% endif %}
-
-                        {% if not ns.gloves %}
-                            ⚠️ ขาด Gloves<br>
-                        {% endif %}
-
-                        {% if not ns.shoes %}
-                            ⚠️ ขาด Shoes
-                        {% endif %}
-
+                        ขาด: {{ missing_text }}
                     </div>
 
                 {% endif %}
@@ -445,7 +393,7 @@
 
 
             <!-- =================================
-                 สรุปผล PPE
+                 สรุป PPE
                  ================================= -->
 
             <div class="ppe-summary">
@@ -454,9 +402,7 @@
                     🤖 รายละเอียดการตรวจจับ
                 </h3>
 
-
                 <div class="ppe-grid">
-
 
                     <!-- Helmet -->
 
@@ -470,10 +416,26 @@
                             Helmet
                         </strong>
 
-                        {% if ns.helmet %}
+                        {% set ns = namespace(confidence=None) %}
+
+                        {% for item in detected_items %}
+
+                            {% if item.class == "helmet" %}
+
+                                {% if ns.confidence is none or item.confidence > ns.confidence %}
+
+                                    {% set ns.confidence = item.confidence %}
+
+                                {% endif %}
+
+                            {% endif %}
+
+                        {% endfor %}
+
+                        {% if ns.confidence is not none %}
 
                             <span class="found">
-                                ✓ พบ {{ "%.0f"|format(ns.helmet * 100) }}%
+                                ✓ พบ {{ "%.0f"|format(ns.confidence * 100) }}%
                             </span>
 
                         {% else %}
@@ -499,10 +461,26 @@
                             Reflective Vest
                         </strong>
 
-                        {% if ns.vest %}
+                        {% set ns = namespace(confidence=None) %}
+
+                        {% for item in detected_items %}
+
+                            {% if item.class == "reflective_vest" %}
+
+                                {% if ns.confidence is none or item.confidence > ns.confidence %}
+
+                                    {% set ns.confidence = item.confidence %}
+
+                                {% endif %}
+
+                            {% endif %}
+
+                        {% endfor %}
+
+                        {% if ns.confidence is not none %}
 
                             <span class="found">
-                                ✓ พบ {{ "%.0f"|format(ns.vest * 100) }}%
+                                ✓ พบ {{ "%.0f"|format(ns.confidence * 100) }}%
                             </span>
 
                         {% else %}
@@ -528,10 +506,26 @@
                             Gloves
                         </strong>
 
-                        {% if ns.gloves %}
+                        {% set ns = namespace(confidence=None) %}
+
+                        {% for item in detected_items %}
+
+                            {% if item.class == "gloves" %}
+
+                                {% if ns.confidence is none or item.confidence > ns.confidence %}
+
+                                    {% set ns.confidence = item.confidence %}
+
+                                {% endif %}
+
+                            {% endif %}
+
+                        {% endfor %}
+
+                        {% if ns.confidence is not none %}
 
                             <span class="found">
-                                ✓ พบ {{ "%.0f"|format(ns.gloves * 100) }}%
+                                ✓ พบ {{ "%.0f"|format(ns.confidence * 100) }}%
                             </span>
 
                         {% else %}
@@ -557,10 +551,26 @@
                             Shoes
                         </strong>
 
-                        {% if ns.shoes %}
+                        {% set ns = namespace(confidence=None) %}
+
+                        {% for item in detected_items %}
+
+                            {% if item.class == "shoes" %}
+
+                                {% if ns.confidence is none or item.confidence > ns.confidence %}
+
+                                    {% set ns.confidence = item.confidence %}
+
+                                {% endif %}
+
+                            {% endif %}
+
+                        {% endfor %}
+
+                        {% if ns.confidence is not none %}
 
                             <span class="found">
-                                ✓ พบ {{ "%.0f"|format(ns.shoes * 100) }}%
+                                ✓ พบ {{ "%.0f"|format(ns.confidence * 100) }}%
                             </span>
 
                         {% else %}
@@ -573,13 +583,12 @@
 
                     </div>
 
-
                 </div>
 
             </div>
 
 
-            <!-- หมายเหตุสีกรอบ -->
+            <!-- หมายเหตุ -->
 
             <div class="info">
 

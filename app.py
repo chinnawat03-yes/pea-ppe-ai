@@ -15,17 +15,21 @@ client = InferenceHTTPClient(
         api_key_transport="header"
     )
 )
+
+
 @app.route("/", methods=["GET", "POST"])
 def home():
     result_image = None
 
     if request.method == "POST":
-       file = request.files["image"]
+        file = request.files["image"]
 
-image = Image.open(file)
-image = ImageOps.exif_transpose(image)
-image = image.convert("RGB")
-image.save("upload.jpg")
+        # แก้ปัญหารูปจากมือถือหมุนผิดทิศ
+        image = Image.open(file)
+        image = ImageOps.exif_transpose(image)
+        image = image.convert("RGB")
+        image.save("upload.jpg")
+
         result = client.run_workflow(
             workspace_name="chinnawat-kf2et",
             workflow_id="pea_ppe_detection",

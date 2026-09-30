@@ -64,6 +64,8 @@ def home():
 
     result_image = None
     detected_items = []
+    status = None
+    missing_text = None
 
     if request.method == "POST":
 
@@ -201,6 +203,36 @@ def home():
         )
 
         # =========================
+        # ตรวจว่าขาดอะไร
+        # =========================
+
+        item_names = {
+            "helmet": "Helmet",
+            "reflective_vest": "Vest",
+            "gloves": "Gloves",
+            "shoes": "Shoes"
+        }
+
+        missing_items = []
+
+        for item, confidence in ppe.items():
+
+            if confidence is None:
+                missing_items.append(
+                    item_names[item]
+                )
+
+        if missing_items:
+
+            missing_text = ", ".join(
+                missing_items
+            )
+
+        else:
+
+            missing_text = "ไม่มี"
+
+        # =========================
         # บันทึก Google Sheets
         # =========================
 
@@ -259,7 +291,9 @@ def home():
     return render_template(
         "index.html",
         result_image=result_image,
-        detected_items=detected_items
+        detected_items=detected_items,
+        status=status,
+        missing_text=missing_text
     )
 
 
@@ -274,14 +308,15 @@ def history():
 
         sheet = get_google_sheet()
 
-       records = sheet.get_all_records()
+        records = sheet.get_all_records()
 
-records.reverse()
+        # เรียงรายการล่าสุดขึ้นก่อน
+        records.reverse()
 
-return render_template(
-    "history.html",
-    records=records
-)
+        return render_template(
+            "history.html",
+            records=records
+        )
 
     except Exception as e:
 

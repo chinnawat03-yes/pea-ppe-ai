@@ -87,6 +87,25 @@
             margin-top: 15px;
         }
 
+        /* ปุ่มบันทึกผลตรวจ */
+        .save-button {
+            display: block;
+            width: 100%;
+            margin-top: 15px;
+            padding: 15px;
+            background: #ffd400;
+            color: #222;
+            text-decoration: none;
+            text-align: center;
+            border-radius: 10px;
+            font-size: 18px;
+            font-weight: bold;
+        }
+
+        .save-button:hover {
+            opacity: 0.9;
+        }
+
         .info {
             margin-top: 20px;
             padding: 15px;
@@ -152,8 +171,18 @@
                 alt="ผลการตรวจสอบ PPE"
             >
 
+            <!-- ปุ่มบันทึกผลตรวจ -->
+            <a
+                href="{{ url_for('static', filename=result_image) }}"
+                download="PEA_PPE_Result.jpg"
+                class="save-button"
+            >
+                💾 บันทึกผลตรวจ
+            </a>
+
             <div class="info">
                 <strong>หมายเหตุ</strong>
+
                 <p>
                     กรอบสีแดง = Helmet<br>
                     กรอบสีน้ำเงิน = Reflective Vest<br>

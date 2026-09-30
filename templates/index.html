@@ -7,86 +7,170 @@
     <title>PEA PPE AI</title>
 
     <style>
-        body {
-            font-family: Arial, sans-serif;
-            background: #f2f2f2;
-            text-align: center;
-            padding: 20px;
+        * {
+            box-sizing: border-box;
         }
 
-        .box {
-            max-width: 700px;
-            margin: auto;
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            background: #f4f6f8;
+            color: #222;
+        }
+
+        .header {
+            background: #ffd400;
+            padding: 18px 20px;
+            text-align: center;
+            font-weight: bold;
+        }
+
+        .header h1 {
+            margin: 0;
+            font-size: 28px;
+        }
+
+        .header p {
+            margin: 5px 0 0;
+            font-size: 14px;
+        }
+
+        .container {
+            max-width: 750px;
+            margin: 30px auto;
+            padding: 0 15px;
+        }
+
+        .card {
             background: white;
             padding: 25px;
-            border-radius: 15px;
+            border-radius: 16px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.08);
         }
 
-        h1 {
-            margin-bottom: 10px;
+        .upload-box {
+            border: 2px dashed #ccc;
+            border-radius: 12px;
+            padding: 25px;
+            text-align: center;
         }
 
         input[type="file"] {
-            display: block;
             width: 100%;
-            margin: 20px 0;
+            margin: 15px 0;
             font-size: 16px;
         }
 
         button {
             width: 100%;
             padding: 15px;
-            margin-top: 10px;
-            font-size: 18px;
             border: none;
             border-radius: 10px;
+            background: #005baa;
+            color: white;
+            font-size: 18px;
+            font-weight: bold;
             cursor: pointer;
         }
 
-        button:active {
-            transform: scale(0.98);
+        button:hover {
+            opacity: 0.9;
         }
 
-        img {
-            max-width: 100%;
+        .result {
+            margin-top: 30px;
+        }
+
+        .result img {
+            width: 100%;
+            border-radius: 12px;
+            margin-top: 15px;
+        }
+
+        .info {
             margin-top: 20px;
+            padding: 15px;
+            background: #f1f5f9;
             border-radius: 10px;
+            text-align: left;
+        }
+
+        .footer {
+            text-align: center;
+            color: #777;
+            font-size: 13px;
+            margin: 25px 0;
         }
     </style>
 </head>
 
 <body>
 
-<div class="box">
-
+<div class="header">
     <h1>PEA PPE AI</h1>
-
     <p>ระบบตรวจสอบอุปกรณ์ PPE ด้วย AI</p>
+</div>
 
-    <form action="/" method="POST" enctype="multipart/form-data">
+<div class="container">
 
-        <input
-            type="file"
-            id="image"
-            name="image"
-            accept="image/*"
-            required
-        >
+    <div class="card">
 
-        <button type="submit">
-            🔍 ตรวจสอบ PPE
-        </button>
+        <div class="upload-box">
 
-    </form>
+            <h2>ตรวจสอบ PPE</h2>
 
-    {% if result_image %}
-        <h2>ผลการตรวจสอบ</h2>
+            <p>
+                อัปโหลดรูปภาพเพื่อให้ AI ตรวจสอบอุปกรณ์ความปลอดภัย
+            </p>
 
-        <img
-            src="{{ url_for('static', filename=result_image) }}"
-            alt="ผลการตรวจสอบ PPE"
-        >
-    {% endif %}
+            <form action="/" method="POST" enctype="multipart/form-data">
+
+                <input
+                    type="file"
+                    id="image"
+                    name="image"
+                    accept="image/*"
+                    required
+                >
+
+                <button type="submit">
+                    🔍 ตรวจสอบ PPE
+                </button>
+
+            </form>
+
+        </div>
+
+        {% if result_image %}
+
+        <div class="result">
+
+            <h2>📋 ผลการตรวจสอบ</h2>
+
+            <img
+                src="{{ url_for('static', filename=result_image) }}"
+                alt="ผลการตรวจสอบ PPE"
+            >
+
+            <div class="info">
+                <strong>หมายเหตุ</strong>
+                <p>
+                    กรอบสีแดง = Helmet<br>
+                    กรอบสีน้ำเงิน = Reflective Vest<br>
+                    กรอบสีเขียว = Gloves<br>
+                    กรอบสีส้ม = Shoes
+                </p>
+            </div>
+
+        </div>
+
+        {% endif %}
+
+    </div>
+
+    <div class="footer">
+        PEA PPE AI • AI-based Personal Protective Equipment Detection
+    </div>
 
 </div>
 

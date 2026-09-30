@@ -20,6 +20,7 @@ client = InferenceHTTPClient(
 @app.route("/", methods=["GET", "POST"])
 def home():
     result_image = None
+    detected_items = []
 
     if request.method == "POST":
         file = request.files["image"]
@@ -43,6 +44,14 @@ def home():
         draw = ImageDraw.Draw(image)
 
         predictions = result[0]["predictions"]["predictions"]
+
+        detected_items = []
+
+        for p in predictions:
+            detected_items.append({
+                "class": p["class"],
+                "confidence": p["confidence"]
+            })
 
         colors = {
             "helmet": "red",
@@ -81,7 +90,8 @@ def home():
 
     return render_template(
         "index.html",
-        result_image=result_image
+        result_image=result_image,
+        detected_items=detected_items
     )
 
 

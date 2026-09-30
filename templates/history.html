@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="th">
+
+<head>
+    <meta charset="UTF-8">
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>PEA PPE AI - ประวัติการตรวจ</title>
+
+    <style>
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            background: #f5f5f5;
+            margin: 0;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1100px;
+            margin: auto;
+        }
+
+        h1 {
+            text-align: center;
+            margin-bottom: 25px;
+        }
+
+        .back-button {
+            display: inline-block;
+            margin-bottom: 20px;
+            padding: 12px 18px;
+            background: #333;
+            color: white;
+            text-decoration: none;
+            border-radius: 8px;
+        }
+
+        .table-box {
+            background: white;
+            border-radius: 12px;
+            padding: 15px;
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            min-width: 700px;
+        }
+
+        th,
+        td {
+            padding: 12px;
+            border-bottom: 1px solid #ddd;
+            text-align: center;
+        }
+
+        th {
+            background: #ffd600;
+            font-weight: bold;
+        }
+
+        tr:hover {
+            background: #fafafa;
+        }
+
+        .complete {
+            color: green;
+            font-weight: bold;
+        }
+
+        .incomplete {
+            color: #d97706;
+            font-weight: bold;
+        }
+
+    </style>
+</head>
+
+<body>
+
+<div class="container">
+
+    <h1>
+        📊 ประวัติการตรวจ PPE
+    </h1>
+
+    <a href="/" class="back-button">
+        ← กลับหน้าตรวจ
+    </a>
+
+    <div class="table-box">
+
+        <table>
+
+            <thead>
+
+                <tr>
+                    <th>วันที่</th>
+                    <th>เวลา</th>
+                    <th>Helmet</th>
+                    <th>Vest</th>
+                    <th>Gloves</th>
+                    <th>Shoes</th>
+                    <th>ผลรวม</th>
+                </tr>
+
+            </thead>
+
+            <tbody>
+
+                {% for row in records %}
+
+                <tr>
+
+                    <td>{{ row["วันที่"] }}</td>
+
+                    <td>{{ row["เวลา"] }}</td>
+
+                    <td>{{ row["Helmet"] }}</td>
+
+                    <td>{{ row["Vest"] }}</td>
+
+                    <td>{{ row["Gloves"] }}</td>
+
+                    <td>{{ row["Shoes"] }}</td>
+
+                    <td class="{% if row['ผลรวม'] == 'ครบ' %}complete{% else %}incomplete{% endif %}">
+                        {{ row["ผลรวม"] }}
+                    </td>
+
+                </tr>
+
+                {% endfor %}
+
+            </tbody>
+
+        </table>
+
+    </div>
+
+</div>
+
+</body>
+
+</html>

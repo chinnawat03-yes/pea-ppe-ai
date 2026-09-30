@@ -5,6 +5,8 @@ import os
 
 app = Flask(__name__)
 
+os.makedirs("static", exist_ok=True)
+
 client = InferenceHTTPClient(
     api_url="https://serverless.roboflow.com",
     api_key=os.environ["ROBOFLOW_API_KEY"]

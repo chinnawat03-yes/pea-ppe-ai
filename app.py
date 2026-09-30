@@ -274,12 +274,14 @@ def history():
 
         sheet = get_google_sheet()
 
-        records = sheet.get_all_records()
+       records = sheet.get_all_records()
 
-        return render_template(
-            "history.html",
-            records=records
-        )
+records.reverse()
+
+return render_template(
+    "history.html",
+    records=records
+)
 
     except Exception as e:
 

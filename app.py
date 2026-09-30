@@ -32,6 +32,7 @@ client = InferenceHTTPClient(
 # =========================
 
 def get_google_sheet():
+
     credentials_info = json.loads(
         os.environ["GOOGLE_CREDENTIALS_JSON"]
     )
@@ -95,6 +96,7 @@ def home():
         detected_items = []
 
         for p in predictions:
+
             detected_items.append({
                 "class": p["class"],
                 "confidence": p["confidence"]
@@ -157,7 +159,6 @@ def home():
 
         result_image = "static_result.jpg"
 
-
         # =========================
         # สรุป PPE
         # =========================
@@ -170,7 +171,7 @@ def home():
         }
 
         # ถ้ามีหลายกล่องของชนิดเดียวกัน
-        # จะเลือกค่าความมั่นใจสูงสุด
+        # เลือกค่าความมั่นใจสูงสุด
         for p in predictions:
 
             cls = p["class"]
@@ -183,7 +184,6 @@ def home():
                     or confidence > ppe[cls]
                 ):
                     ppe[cls] = confidence
-
 
         # =========================
         # ตรวจว่าครบหรือไม่
@@ -200,7 +200,6 @@ def home():
             else "ไม่ครบ"
         )
 
-
         # =========================
         # บันทึก Google Sheets
         # =========================
@@ -214,7 +213,9 @@ def home():
             )
 
             sheet.append_row([
+
                 now.strftime("%d/%m/%Y"),
+
                 now.strftime("%H:%M:%S"),
 
                 (
@@ -244,7 +245,9 @@ def home():
                 status
             ])
 
-            print("บันทึก Google Sheets สำเร็จ")
+            print(
+                "บันทึก Google Sheets สำเร็จ"
+            )
 
         except Exception as e:
 
@@ -253,12 +256,34 @@ def home():
                 e
             )
 
-
     return render_template(
         "index.html",
         result_image=result_image,
         detected_items=detected_items
     )
+
+
+# =========================
+# History page
+# =========================
+
+@app.route("/history")
+def history():
+
+    try:
+
+        sheet = get_google_sheet()
+
+        records = sheet.get_all_records()
+
+        return render_template(
+            "history.html",
+            records=records
+        )
+
+    except Exception as e:
+
+        return f"เกิดข้อผิดพลาดในการโหลดประวัติ: {e}"
 
 
 # =========================

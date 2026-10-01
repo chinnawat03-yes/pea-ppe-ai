@@ -91,10 +91,19 @@ def home():
 
         file = request.files["image"]
 
-        # แก้ปัญหารูปจากมือถือหมุนผิดทิศ
+        # =========================
+        # เปิดรูป
+        # =========================
+
         image = Image.open(file)
+
+        # แก้ปัญหารูปจากมือถือหมุนผิดทิศ
         image = ImageOps.exif_transpose(image)
+
+        # แปลงเป็น RGB
         image = image.convert("RGB")
+
+        # บันทึกรูปต้นฉบับสำหรับส่ง Roboflow
         image.save("upload.jpg")
 
         # =========================
@@ -110,7 +119,9 @@ def home():
             use_cache=False
         )
 
-        image = Image.open("upload.jpg")
+        # เปิดรูปต้นฉบับเพื่อวาดกรอบ
+        image = Image.open("upload.jpg").convert("RGB")
+
         draw = ImageDraw.Draw(image)
 
         predictions = result[0]["predictions"]["predictions"]
@@ -148,10 +159,10 @@ def home():
         # =========================
 
         colors = {
-            "helmet": "red",
-            "reflective_vest": "blue",
-            "gloves": "green",
-            "shoes": "orange"
+            "helmet": (255, 0, 0),
+            "reflective_vest": (0, 102, 255),
+            "gloves": (0, 180, 0),
+            "shoes": (255, 140, 0)
         }
 
         # =========================
@@ -172,33 +183,59 @@ def home():
 
             color = colors.get(
                 p["class"],
-                "purple"
+                (160, 0, 160)
             )
 
+            # กรอบหนาและชัด
             draw.rectangle(
                 [left, top, right, bottom],
                 outline=color,
-                width=5
+                width=10
+            )
+
+            # ข้อความบนกรอบ
+            label = (
+                f'{p["class"]} '
+                f'{p["confidence"]:.0%}'
             )
 
             draw.text(
                 (
-                    left,
-                    max(0, top - 20)
+                    left + 3,
+                    max(3, top - 25)
                 ),
-                f'{p["class"]} {p["confidence"]:.0%}',
-                fill=color
+                label,
+                fill=color,
+                stroke_width=2,
+                stroke_fill=(255, 255, 255)
             )
 
         # =========================
-        # บันทึกรูปผลลัพธ์
+        # สร้างชื่อไฟล์ใหม่ทุกครั้ง
         # =========================
 
-        image.save(
-            "static/static_result.jpg"
+        now = datetime.now(
+            ZoneInfo("Asia/Bangkok")
         )
 
-        result_image = "static_result.jpg"
+        result_filename = (
+            f'result_'
+            f'{now.strftime("%Y%m%d_%H%M%S_%f")}'
+            f'.jpg'
+        )
+
+        result_path = os.path.join(
+            "static",
+            result_filename
+        )
+
+        # บันทึกรูปคุณภาพสูง
+        image.save(
+            result_path,
+            quality=95
+        )
+
+        result_image = result_filename
 
         # =========================
         # สรุป PPE

@@ -75,6 +75,7 @@
 
         .result img {
             max-width: 100%;
+            height: auto;
             border-radius: 10px;
             margin-top: 15px;
         }
@@ -119,6 +120,38 @@
 
         .history-button:hover {
             background: #23272b;
+        }
+
+        /* =========================
+           คำแนะนำการบันทึกรูป
+           ========================= */
+
+        .save-help {
+            display: none;
+            margin-top: 15px;
+            padding: 15px;
+            background: #fff8d6;
+            border: 1px solid #e6c200;
+            border-radius: 10px;
+            text-align: left;
+            line-height: 1.6;
+        }
+
+        .save-help strong {
+            display: block;
+            margin-bottom: 5px;
+        }
+
+        .save-help .android {
+            color: #16803c;
+        }
+
+        .save-help .iphone {
+            color: #555;
+        }
+
+        .save-help .computer {
+            color: #0056b3;
         }
 
         .status {
@@ -199,7 +232,10 @@
 
 <div class="container">
 
-    <!-- อัปโหลดรูป -->
+    <!-- =========================
+         อัปโหลดรูป
+         ========================= -->
+
     <div class="card">
 
         <h2>📷 ตรวจสอบอุปกรณ์ PPE</h2>
@@ -227,18 +263,22 @@
 
     {% if result_image %}
 
-    <!-- ผลตรวจ -->
+    <!-- =========================
+         ผลตรวจ
+         ========================= -->
+
     <div class="card result">
 
         <h2>📊 ผลการตรวจ</h2>
 
         <img
+            id="resultImage"
             src="{{ url_for('static', filename=result_image) }}"
             alt="ผลการตรวจ PPE"
         >
 
 
-        <!-- ปุ่มบันทึกผล -->
+        <!-- ปุ่มบันทึก -->
         <button
             type="button"
             class="save-button"
@@ -246,6 +286,50 @@
         >
             💾 บันทึกผลตรวจ
         </button>
+
+
+        <!-- คำแนะนำ -->
+        <div
+            id="saveHelp"
+            class="save-help"
+        >
+
+            <strong>📱 วิธีบันทึกผลตรวจ</strong>
+
+            <div
+                id="androidHelp"
+                class="android"
+            >
+                🤖 <strong>Android:</strong>
+                กดค้างที่รูปผลตรวจ แล้วเลือก
+                <strong>ดาวน์โหลดรูปภาพ</strong>
+                หรือ
+                <strong>บันทึกรูปภาพ</strong>
+            </div>
+
+            <br>
+
+            <div
+                id="iphoneHelp"
+                class="iphone"
+            >
+                🍎 <strong>iPhone / iPad:</strong>
+                กดปุ่ม <strong>แชร์</strong>
+                แล้วเลือก
+                <strong>บันทึกรูปภาพ</strong>
+            </div>
+
+            <br>
+
+            <div
+                id="computerHelp"
+                class="computer"
+            >
+                💻 <strong>คอมพิวเตอร์:</strong>
+                ระบบจะพยายามดาวน์โหลดรูปผลตรวจให้อัตโนมัติ
+            </div>
+
+        </div>
 
 
         <!-- ตรวจรูปใหม่ -->
@@ -268,7 +352,10 @@
     </div>
 
 
-    <!-- สถานะ -->
+    <!-- =========================
+         สถานะ
+         ========================= -->
+
     <div class="card">
 
         {% if status == "ครบ" %}
@@ -298,7 +385,10 @@
     </div>
 
 
-    <!-- สรุป PPE -->
+    <!-- =========================
+         สรุป PPE
+         ========================= -->
+
     <div class="card">
 
         <h2>🦺 รายละเอียด PPE</h2>
@@ -326,7 +416,6 @@
                     {% endif %}
 
                 {% endfor %}
-
 
                 {% if ns.confidence is not none %}
 
@@ -366,7 +455,6 @@
 
                 {% endfor %}
 
-
                 {% if ns.confidence is not none %}
 
                     <div class="confidence">
@@ -404,7 +492,6 @@
                     {% endif %}
 
                 {% endfor %}
-
 
                 {% if ns.confidence is not none %}
 
@@ -444,7 +531,6 @@
 
                 {% endfor %}
 
-
                 {% if ns.confidence is not none %}
 
                     <div class="confidence">
@@ -471,61 +557,156 @@
 </div>
 
 
-<!-- JavaScript สำหรับบันทึกรูป -->
+<!-- =========================
+     JavaScript
+     ========================= -->
+
 <script>
+
+function detectDevice() {
+
+    const userAgent = navigator.userAgent
+        || navigator.vendor
+        || window.opera;
+
+    const isAndroid =
+        /Android/i.test(userAgent);
+
+    const isIPhone =
+        /iPhone|iPad|iPod/i.test(userAgent);
+
+    const androidHelp =
+        document.getElementById("androidHelp");
+
+    const iphoneHelp =
+        document.getElementById("iphoneHelp");
+
+    const computerHelp =
+        document.getElementById("computerHelp");
+
+
+    if (isAndroid) {
+
+        androidHelp.style.display = "block";
+        iphoneHelp.style.display = "none";
+        computerHelp.style.display = "none";
+
+    }
+
+    else if (isIPhone) {
+
+        androidHelp.style.display = "none";
+        iphoneHelp.style.display = "block";
+        computerHelp.style.display = "none";
+
+    }
+
+    else {
+
+        androidHelp.style.display = "none";
+        iphoneHelp.style.display = "none";
+        computerHelp.style.display = "block";
+
+    }
+
+}
+
 
 async function saveResultImage() {
 
-    const image = document.querySelector(".result img");
+    const image =
+        document.getElementById("resultImage");
+
+    const help =
+        document.getElementById("saveHelp");
+
 
     if (!image) {
 
         alert("ไม่พบรูปผลตรวจ");
 
         return;
+
     }
 
 
+    /*
+     * แสดงคำแนะนำตามอุปกรณ์
+     */
+    detectDevice();
+
+    help.style.display = "block";
+
+
+    /*
+     * ถ้าเป็นมือถือ
+     * เปิดรูปเพื่อให้ผู้ใช้บันทึกด้วยเมนูของเครื่อง
+     */
+
+    const userAgent =
+        navigator.userAgent
+        || navigator.vendor
+        || window.opera;
+
+    const isMobile =
+        /Android|iPhone|iPad|iPod/i.test(
+            userAgent
+        );
+
+
+    if (isMobile) {
+
+        window.open(
+            image.src,
+            "_blank"
+        );
+
+        return;
+
+    }
+
+
+    /*
+     * คอมพิวเตอร์:
+     * พยายามดาวน์โหลดอัตโนมัติ
+     */
+
     try {
 
-        /*
-         * ดึงรูปจาก Flask
-         */
-        const response = await fetch(
-            image.src,
-            {
-                cache: "no-store"
-            }
-        );
+        const response =
+            await fetch(
+                image.src,
+                {
+                    cache: "no-store"
+                }
+            );
 
 
         if (!response.ok) {
 
-            throw new Error("ไม่สามารถโหลดรูปได้");
+            throw new Error(
+                "ไม่สามารถโหลดรูปได้"
+            );
 
         }
 
 
-        /*
-         * แปลงรูปเป็น Blob
-         */
-        const blob = await response.blob();
+        const blob =
+            await response.blob();
 
 
-        /*
-         * สร้าง URL ชั่วคราว
-         */
-        const url = URL.createObjectURL(blob);
+        const url =
+            URL.createObjectURL(blob);
 
 
-        /*
-         * สร้างลิงก์ดาวน์โหลด
-         */
-        const link = document.createElement("a");
+        const link =
+            document.createElement("a");
+
 
         link.href = url;
 
-        link.download = "PEA_PPE_Result.jpg";
+        link.download =
+            "PEA_PPE_Result.jpg";
 
 
         document.body.appendChild(link);
@@ -535,9 +716,6 @@ async function saveResultImage() {
         document.body.removeChild(link);
 
 
-        /*
-         * ล้าง URL ชั่วคราว
-         */
         URL.revokeObjectURL(url);
 
     }
@@ -546,10 +724,6 @@ async function saveResultImage() {
 
         console.error(error);
 
-        /*
-         * ถ้าบราวเซอร์ไม่ยอมดาวน์โหลด
-         * ให้เปิดรูปขึ้นมาแทน
-         */
         window.open(
             image.src,
             "_blank"

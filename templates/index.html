@@ -284,7 +284,7 @@
             class="save-button"
             onclick="saveResultImage()"
         >
-            💾 บันทึกผลตรวจ
+            📥 บันทึกลงเครื่อง
         </button>
 
 
@@ -301,10 +301,11 @@
                 class="android"
             >
                 🤖 <strong>Android:</strong>
-                กดค้างที่รูปผลตรวจ แล้วเลือก
-                <strong>ดาวน์โหลดรูปภาพ</strong>
+                หลังจากกดบันทึก ให้เลือก
+                <strong>ดาวน์โหลด</strong>
                 หรือ
                 <strong>บันทึกรูปภาพ</strong>
+                ในเมนูที่แสดง
             </div>
 
             <br>
@@ -314,9 +315,9 @@
                 class="iphone"
             >
                 🍎 <strong>iPhone / iPad:</strong>
-                กดปุ่ม <strong>แชร์</strong>
-                แล้วเลือก
-                <strong>บันทึกรูปภาพ</strong>
+                หลังจากกดบันทึก ให้เลือก
+                <strong>บันทึกรูปภาพ / Save Image</strong>
+                ในเมนูแชร์
             </div>
 
             <br>
@@ -326,7 +327,7 @@
                 class="computer"
             >
                 💻 <strong>คอมพิวเตอร์:</strong>
-                ระบบจะพยายามดาวน์โหลดรูปผลตรวจให้อัตโนมัติ
+                ระบบจะดาวน์โหลดรูปผลตรวจให้อัตโนมัติ
             </div>
 
         </div>
@@ -565,9 +566,10 @@
 
 function detectDevice() {
 
-    const userAgent = navigator.userAgent
-        || navigator.vendor
-        || window.opera;
+    const userAgent =
+        navigator.userAgent ||
+        navigator.vendor ||
+        window.opera;
 
     const isAndroid =
         /Android/i.test(userAgent);
@@ -583,6 +585,14 @@ function detectDevice() {
 
     const computerHelp =
         document.getElementById("computerHelp");
+
+
+    if (!androidHelp ||
+        !iphoneHelp ||
+        !computerHelp) {
+
+        return;
+    }
 
 
     if (isAndroid) {
@@ -612,6 +622,10 @@ function detectDevice() {
 }
 
 
+/* =========================
+   บันทึกผลตรวจ
+   ========================= */
+
 async function saveResultImage() {
 
     const image =
@@ -630,48 +644,19 @@ async function saveResultImage() {
     }
 
 
-    /*
-     * แสดงคำแนะนำตามอุปกรณ์
-     */
+    // แสดงคำแนะนำ
     detectDevice();
 
-    help.style.display = "block";
-
-
-    /*
-     * ถ้าเป็นมือถือ
-     * เปิดรูปเพื่อให้ผู้ใช้บันทึกด้วยเมนูของเครื่อง
-     */
-
-    const userAgent =
-        navigator.userAgent
-        || navigator.vendor
-        || window.opera;
-
-    const isMobile =
-        /Android|iPhone|iPad|iPod/i.test(
-            userAgent
-        );
-
-
-    if (isMobile) {
-
-        window.open(
-            image.src,
-            "_blank"
-        );
-
-        return;
-
+    if (help) {
+        help.style.display = "block";
     }
 
 
-    /*
-     * คอมพิวเตอร์:
-     * พยายามดาวน์โหลดอัตโนมัติ
-     */
-
     try {
+
+        /*
+         * โหลดรูปผลตรวจเป็นไฟล์
+         */
 
         const response =
             await fetch(
@@ -685,7 +670,7 @@ async function saveResultImage() {
         if (!response.ok) {
 
             throw new Error(
-                "ไม่สามารถโหลดรูปได้"
+                "ไม่สามารถโหลดรูปผลตรวจได้"
             );
 
         }
@@ -694,6 +679,87 @@ async function saveResultImage() {
         const blob =
             await response.blob();
 
+
+        /*
+         * สร้างไฟล์ JPG
+         */
+
+        const file =
+            new File(
+                [blob],
+                "PEA_PPE_Result.jpg",
+                {
+                    type: "image/jpeg"
+                }
+            );
+
+
+        /*
+         * =========================
+         * iPhone / Android
+         * ใช้เมนู Share ของเครื่อง
+         * =========================
+         */
+
+        if (
+            navigator.share &&
+            navigator.canShare &&
+            navigator.canShare({
+                files: [file]
+            })
+        ) {
+
+            await navigator.share({
+
+                files: [file],
+
+                title: "PEA PPE AI",
+
+                text: "ผลการตรวจ PPE"
+
+            });
+
+            return;
+
+        }
+
+
+        /*
+         * =========================
+         * ถ้ามือถือไม่รองรับ File Share
+         * เปิดรูปแทน
+         * =========================
+         */
+
+        const userAgent =
+            navigator.userAgent ||
+            navigator.vendor ||
+            window.opera;
+
+        const isMobile =
+            /Android|iPhone|iPad|iPod/i.test(
+                userAgent
+            );
+
+
+        if (isMobile) {
+
+            window.open(
+                image.src,
+                "_blank"
+            );
+
+            return;
+
+        }
+
+
+        /*
+         * =========================
+         * คอมพิวเตอร์
+         * ดาวน์โหลดอัตโนมัติ
+         * =========================
+         */
 
         const url =
             URL.createObjectURL(blob);
@@ -722,7 +788,31 @@ async function saveResultImage() {
 
     catch (error) {
 
-        console.error(error);
+        console.error(
+            "Save image error:",
+            error
+        );
+
+
+        /*
+         * ถ้าผู้ใช้กดยกเลิก Share
+         * ไม่ต้องทำอะไรต่อ
+         */
+
+        if (
+            error &&
+            error.name === "AbortError"
+        ) {
+
+            return;
+
+        }
+
+
+        /*
+         * ถ้าเกิดปัญหา
+         * เปิดรูปให้บันทึกเอง
+         */
 
         window.open(
             image.src,

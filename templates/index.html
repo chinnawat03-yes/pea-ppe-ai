@@ -7,6 +7,7 @@
     <title>PEA PPE AI</title>
 
     <style>
+
         * {
             box-sizing: border-box;
         }
@@ -14,609 +15,552 @@
         body {
             margin: 0;
             font-family: Arial, sans-serif;
-            background: #f4f6f8;
+            background: #f5f5f5;
             color: #222;
         }
 
-        .header {
+        header {
             background: #ffd400;
-            padding: 18px 20px;
+            padding: 18px;
             text-align: center;
+            font-size: 26px;
             font-weight: bold;
         }
 
-        .header h1 {
-            margin: 0;
-            font-size: 28px;
-        }
-
-        .header p {
-            margin: 5px 0 0;
-            font-size: 14px;
-        }
-
         .container {
-            max-width: 750px;
+            max-width: 900px;
             margin: 30px auto;
-            padding: 0 15px;
+            padding: 20px;
         }
 
         .card {
             background: white;
             padding: 25px;
-            border-radius: 16px;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+            border-radius: 15px;
+            box-shadow: 0 3px 10px rgba(0,0,0,0.1);
+            margin-bottom: 25px;
         }
 
-        .upload-box {
-            border: 2px dashed #ccc;
-            border-radius: 12px;
-            padding: 25px;
-            text-align: center;
+        h2 {
+            margin-top: 0;
         }
 
         input[type="file"] {
             width: 100%;
-            margin: 15px 0;
-            font-size: 16px;
+            padding: 12px;
+            margin-bottom: 15px;
         }
 
         button {
-            width: 100%;
-            padding: 15px;
             border: none;
-            border-radius: 10px;
-            background: #005baa;
-            color: white;
-            font-size: 18px;
-            font-weight: bold;
             cursor: pointer;
+            font-size: 16px;
         }
 
-        button:hover {
-            opacity: 0.9;
+        .check-button {
+            width: 100%;
+            padding: 14px;
+            background: #ffd400;
+            border-radius: 10px;
+            font-weight: bold;
+        }
+
+        .check-button:hover {
+            background: #e6be00;
         }
 
         .result {
-            margin-top: 30px;
+            text-align: center;
         }
 
         .result img {
-            width: 100%;
-            border-radius: 12px;
+            max-width: 100%;
+            border-radius: 10px;
             margin-top: 15px;
         }
-
-        /* ปุ่มต่าง ๆ */
 
         .save-button,
         .new-button,
         .history-button {
             display: block;
             width: 100%;
-            margin-top: 10px;
-            padding: 15px;
-            text-decoration: none;
-            text-align: center;
+            padding: 13px;
+            margin-top: 12px;
             border-radius: 10px;
-            font-size: 18px;
-            font-weight: bold;
+            text-align: center;
+            text-decoration: none;
+            font-size: 16px;
+            cursor: pointer;
         }
 
         .save-button {
-            background: #ffd400;
-            color: #222;
-            margin-top: 15px;
+            background: #28a745;
+            color: white;
+            border: none;
+        }
+
+        .save-button:hover {
+            background: #218838;
         }
 
         .new-button {
-            background: #005baa;
+            background: #007bff;
             color: white;
+        }
+
+        .new-button:hover {
+            background: #0069d9;
         }
 
         .history-button {
-            background: #333;
+            background: #343a40;
             color: white;
         }
 
-        .save-button:hover,
-        .new-button:hover,
         .history-button:hover {
-            opacity: 0.9;
+            background: #23272b;
         }
 
-        /* =========================
-           สถานะรวม PPE
-           ========================= */
-
-        .status-box {
-            margin-top: 20px;
-            padding: 22px;
-            border-radius: 14px;
-            background: #f1f5f9;
+        .status {
             text-align: center;
-        }
-
-        .status-complete {
-            border: 3px solid #16803c;
-        }
-
-        .status-incomplete {
-            border: 3px solid #c62828;
-        }
-
-        .status-icon {
-            font-size: 48px;
-        }
-
-        .status-title {
-            margin-top: 8px;
-            font-size: 25px;
+            font-size: 24px;
             font-weight: bold;
-        }
-
-        .status-count {
-            margin-top: 6px;
-            font-size: 18px;
-            font-weight: bold;
-            color: #555;
-        }
-
-        .missing {
-            margin-top: 15px;
-            padding: 13px;
-            background: white;
+            padding: 15px;
             border-radius: 10px;
-            color: #c62828;
-            font-weight: bold;
-            line-height: 1.8;
-        }
-
-        /* =========================
-           สรุป PPE
-           ========================= */
-
-        .ppe-summary {
             margin-top: 20px;
-            padding: 18px;
-            background: #f1f5f9;
-            border-radius: 12px;
         }
 
-        .ppe-summary h3 {
-            margin-top: 0;
-            text-align: center;
+        .complete {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .incomplete {
+            background: #f8d7da;
+            color: #721c24;
         }
 
         .ppe-grid {
             display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 12px;
-        }
-
-        .ppe-item {
-            background: white;
-            padding: 15px;
-            border-radius: 10px;
-            text-align: center;
-            box-shadow: 0 2px 6px rgba(0,0,0,0.05);
-        }
-
-        .ppe-icon {
-            font-size: 30px;
-            margin-bottom: 8px;
-        }
-
-        .ppe-item strong {
-            display: block;
-            margin-bottom: 8px;
-        }
-
-        .found {
-            display: block;
-            color: #16803c;
-            font-weight: bold;
-        }
-
-        .not-found {
-            display: block;
-            color: #c62828;
-            font-weight: bold;
-        }
-
-        /* หมายเหตุ */
-
-        .info {
+            grid-template-columns: repeat(4, 1fr);
+            gap: 15px;
             margin-top: 20px;
+        }
+
+        .ppe-card {
+            background: #f8f9fa;
             padding: 15px;
-            background: #f1f5f9;
             border-radius: 10px;
-            text-align: left;
-        }
-
-        .footer {
             text-align: center;
-            color: #777;
-            font-size: 13px;
-            margin: 25px 0;
         }
 
-        /* มือถือ */
+        .ppe-card h3 {
+            margin: 5px 0;
+            font-size: 18px;
+        }
 
-        @media (max-width: 500px) {
+        .confidence {
+            font-size: 22px;
+            font-weight: bold;
+        }
+
+        .missing {
+            margin-top: 15px;
+            text-align: center;
+            font-size: 18px;
+        }
+
+        @media (max-width: 700px) {
+
+            .container {
+                margin: 10px auto;
+                padding: 10px;
+            }
 
             .ppe-grid {
-                grid-template-columns: 1fr;
+                grid-template-columns: repeat(2, 1fr);
             }
 
-            .card {
-                padding: 18px;
-            }
-
-            .header h1 {
-                font-size: 24px;
-            }
-
-            .status-title {
+            header {
                 font-size: 22px;
             }
+
         }
+
     </style>
 </head>
 
 <body>
 
-<div class="header">
-    <h1>PEA PPE AI</h1>
-    <p>ระบบตรวจสอบอุปกรณ์ PPE ด้วย AI</p>
-</div>
+<header>
+    🦺 PEA PPE AI
+</header>
+
 
 <div class="container">
 
+    <!-- อัปโหลดรูป -->
     <div class="card">
 
-        <div class="upload-box">
+        <h2>📷 ตรวจสอบอุปกรณ์ PPE</h2>
 
-            <h2>ตรวจสอบ PPE</h2>
+        <form method="POST" enctype="multipart/form-data">
 
-            <p>
-                อัปโหลดรูปภาพเพื่อให้ AI ตรวจสอบอุปกรณ์ความปลอดภัย
-            </p>
-
-            <form action="/" method="POST" enctype="multipart/form-data">
-
-                <input
-                    type="file"
-                    id="image"
-                    name="image"
-                    accept="image/*"
-                    required
-                >
-
-                <button type="submit">
-                    🔍 ตรวจสอบ PPE
-                </button>
-
-            </form>
-
-        </div>
-
-
-        {% if result_image %}
-
-        <div class="result">
-
-            <h2>📋 ผลการตรวจสอบ</h2>
-
-            <!-- รูปผลตรวจ -->
-
-            <img
-                src="{{ url_for('static', filename=result_image) }}"
-                alt="ผลการตรวจสอบ PPE"
+            <input
+                type="file"
+                name="image"
+                accept="image/*"
+                required
             >
 
-
-            <!-- ปุ่มบันทึก -->
-
-            <a
-                href="{{ url_for('static', filename=result_image) }}"
-                download="PEA_PPE_Result.jpg"
-                class="save-button"
+            <button
+                type="submit"
+                class="check-button"
             >
-                💾 บันทึกผลตรวจ
-            </a>
+                🔍 ตรวจสอบ PPE
+            </button>
+
+        </form>
+
+    </div>
 
 
-            <!-- ปุ่มตรวจรูปใหม่ -->
+    {% if result_image %}
 
-            <a
-                href="/"
-                class="new-button"
-            >
-                🔄 ตรวจรูปใหม่
-            </a>
+    <!-- ผลตรวจ -->
+    <div class="card result">
 
+        <h2>📊 ผลการตรวจ</h2>
 
-            <!-- ปุ่มประวัติ -->
-
-            <a
-                href="/history"
-                class="history-button"
-            >
-                📊 ดูประวัติการตรวจ
-            </a>
+        <img
+            src="{{ url_for('static', filename=result_image) }}"
+            alt="ผลการตรวจ PPE"
+        >
 
 
-            <!-- =================================
-                 สถานะรวม PPE
-                 ================================= -->
+        <!-- ปุ่มบันทึกผล -->
+        <button
+            type="button"
+            class="save-button"
+            onclick="saveResultImage()"
+        >
+            💾 บันทึกผลตรวจ
+        </button>
 
-            <div class="status-box
-                {% if status == 'ครบ' %}
-                    status-complete
-                {% else %}
-                    status-incomplete
-                {% endif %}
-            ">
 
-                {% if status == "ครบ" %}
+        <!-- ตรวจรูปใหม่ -->
+        <a
+            href="/"
+            class="new-button"
+        >
+            🔄 ตรวจรูปใหม่
+        </a>
 
-                    <div class="status-icon">
-                        🟢
-                    </div>
 
-                    <div class="status-title">
-                        PPE ครบทุกอุปกรณ์
-                    </div>
+        <!-- ดูประวัติ -->
+        <a
+            href="/history"
+            class="history-button"
+        >
+            📋 ดูประวัติการตรวจ
+        </a>
 
-                    <div class="status-count">
-                        4 / 4 รายการ
-                    </div>
+    </div>
 
-                {% else %}
 
-                    <div class="status-icon">
-                        🔴
-                    </div>
+    <!-- สถานะ -->
+    <div class="card">
 
-                    <div class="status-title">
-                        PPE ไม่ครบ
-                    </div>
+        {% if status == "ครบ" %}
 
-                    <div class="status-count">
-                        ขาด: {{ missing_text }}
-                    </div>
-
-                {% endif %}
-
+            <div class="status complete">
+                ✅ PPE ครบ
             </div>
 
+        {% else %}
 
-            <!-- =================================
-                 สรุป PPE
-                 ================================= -->
-
-            <div class="ppe-summary">
-
-                <h3>
-                    🤖 รายละเอียดการตรวจจับ
-                </h3>
-
-                <div class="ppe-grid">
-
-                    <!-- Helmet -->
-
-                    <div class="ppe-item">
-
-                        <div class="ppe-icon">
-                            🪖
-                        </div>
-
-                        <strong>
-                            Helmet
-                        </strong>
-
-                        {% set ns = namespace(confidence=None) %}
-
-                        {% for item in detected_items %}
-
-                            {% if item.class == "helmet" %}
-
-                                {% if ns.confidence is none or item.confidence > ns.confidence %}
-
-                                    {% set ns.confidence = item.confidence %}
-
-                                {% endif %}
-
-                            {% endif %}
-
-                        {% endfor %}
-
-                        {% if ns.confidence is not none %}
-
-                            <span class="found">
-                                ✓ พบ {{ "%.0f"|format(ns.confidence * 100) }}%
-                            </span>
-
-                        {% else %}
-
-                            <span class="not-found">
-                                ✕ ไม่พบ
-                            </span>
-
-                        {% endif %}
-
-                    </div>
-
-
-                    <!-- Vest -->
-
-                    <div class="ppe-item">
-
-                        <div class="ppe-icon">
-                            🦺
-                        </div>
-
-                        <strong>
-                            Reflective Vest
-                        </strong>
-
-                        {% set ns = namespace(confidence=None) %}
-
-                        {% for item in detected_items %}
-
-                            {% if item.class == "reflective_vest" %}
-
-                                {% if ns.confidence is none or item.confidence > ns.confidence %}
-
-                                    {% set ns.confidence = item.confidence %}
-
-                                {% endif %}
-
-                            {% endif %}
-
-                        {% endfor %}
-
-                        {% if ns.confidence is not none %}
-
-                            <span class="found">
-                                ✓ พบ {{ "%.0f"|format(ns.confidence * 100) }}%
-                            </span>
-
-                        {% else %}
-
-                            <span class="not-found">
-                                ✕ ไม่พบ
-                            </span>
-
-                        {% endif %}
-
-                    </div>
-
-
-                    <!-- Gloves -->
-
-                    <div class="ppe-item">
-
-                        <div class="ppe-icon">
-                            🧤
-                        </div>
-
-                        <strong>
-                            Gloves
-                        </strong>
-
-                        {% set ns = namespace(confidence=None) %}
-
-                        {% for item in detected_items %}
-
-                            {% if item.class == "gloves" %}
-
-                                {% if ns.confidence is none or item.confidence > ns.confidence %}
-
-                                    {% set ns.confidence = item.confidence %}
-
-                                {% endif %}
-
-                            {% endif %}
-
-                        {% endfor %}
-
-                        {% if ns.confidence is not none %}
-
-                            <span class="found">
-                                ✓ พบ {{ "%.0f"|format(ns.confidence * 100) }}%
-                            </span>
-
-                        {% else %}
-
-                            <span class="not-found">
-                                ✕ ไม่พบ
-                            </span>
-
-                        {% endif %}
-
-                    </div>
-
-
-                    <!-- Shoes -->
-
-                    <div class="ppe-item">
-
-                        <div class="ppe-icon">
-                            👟
-                        </div>
-
-                        <strong>
-                            Shoes
-                        </strong>
-
-                        {% set ns = namespace(confidence=None) %}
-
-                        {% for item in detected_items %}
-
-                            {% if item.class == "shoes" %}
-
-                                {% if ns.confidence is none or item.confidence > ns.confidence %}
-
-                                    {% set ns.confidence = item.confidence %}
-
-                                {% endif %}
-
-                            {% endif %}
-
-                        {% endfor %}
-
-                        {% if ns.confidence is not none %}
-
-                            <span class="found">
-                                ✓ พบ {{ "%.0f"|format(ns.confidence * 100) }}%
-                            </span>
-
-                        {% else %}
-
-                            <span class="not-found">
-                                ✕ ไม่พบ
-                            </span>
-
-                        {% endif %}
-
-                    </div>
-
-                </div>
-
+            <div class="status incomplete">
+                ⚠️ PPE ไม่ครบ
             </div>
 
+        {% endif %}
 
-            <!-- หมายเหตุ -->
 
-            <div class="info">
+        {% if missing_text %}
 
-                <strong>
-                    หมายเหตุ
-                </strong>
-
-                <p>
-                    กรอบสีแดง = Helmet<br>
-                    กรอบสีน้ำเงิน = Reflective Vest<br>
-                    กรอบสีเขียว = Gloves<br>
-                    กรอบสีส้ม = Shoes
-                </p>
-
+            <div class="missing">
+                <strong>อุปกรณ์ที่ขาด:</strong>
+                {{ missing_text }}
             </div>
-
-        </div>
 
         {% endif %}
 
     </div>
 
 
-    <div class="footer">
-        PEA PPE AI • AI-based Personal Protective Equipment Detection
+    <!-- สรุป PPE -->
+    <div class="card">
+
+        <h2>🦺 รายละเอียด PPE</h2>
+
+        <div class="ppe-grid">
+
+
+            <!-- Helmet -->
+            <div class="ppe-card">
+
+                <h3>🪖 Helmet</h3>
+
+                {% set ns = namespace(confidence=None) %}
+
+                {% for item in detected_items %}
+
+                    {% if item.class == "helmet" %}
+
+                        {% if ns.confidence is none or item.confidence > ns.confidence %}
+
+                            {% set ns.confidence = item.confidence %}
+
+                        {% endif %}
+
+                    {% endif %}
+
+                {% endfor %}
+
+
+                {% if ns.confidence is not none %}
+
+                    <div class="confidence">
+                        {{ "%.0f"|format(ns.confidence * 100) }}%
+                    </div>
+
+                {% else %}
+
+                    <div class="confidence">
+                        -
+                    </div>
+
+                {% endif %}
+
+            </div>
+
+
+            <!-- Vest -->
+            <div class="ppe-card">
+
+                <h3>🦺 Vest</h3>
+
+                {% set ns = namespace(confidence=None) %}
+
+                {% for item in detected_items %}
+
+                    {% if item.class == "reflective_vest" %}
+
+                        {% if ns.confidence is none or item.confidence > ns.confidence %}
+
+                            {% set ns.confidence = item.confidence %}
+
+                        {% endif %}
+
+                    {% endif %}
+
+                {% endfor %}
+
+
+                {% if ns.confidence is not none %}
+
+                    <div class="confidence">
+                        {{ "%.0f"|format(ns.confidence * 100) }}%
+                    </div>
+
+                {% else %}
+
+                    <div class="confidence">
+                        -
+                    </div>
+
+                {% endif %}
+
+            </div>
+
+
+            <!-- Gloves -->
+            <div class="ppe-card">
+
+                <h3>🧤 Gloves</h3>
+
+                {% set ns = namespace(confidence=None) %}
+
+                {% for item in detected_items %}
+
+                    {% if item.class == "gloves" %}
+
+                        {% if ns.confidence is none or item.confidence > ns.confidence %}
+
+                            {% set ns.confidence = item.confidence %}
+
+                        {% endif %}
+
+                    {% endif %}
+
+                {% endfor %}
+
+
+                {% if ns.confidence is not none %}
+
+                    <div class="confidence">
+                        {{ "%.0f"|format(ns.confidence * 100) }}%
+                    </div>
+
+                {% else %}
+
+                    <div class="confidence">
+                        -
+                    </div>
+
+                {% endif %}
+
+            </div>
+
+
+            <!-- Shoes -->
+            <div class="ppe-card">
+
+                <h3>👞 Shoes</h3>
+
+                {% set ns = namespace(confidence=None) %}
+
+                {% for item in detected_items %}
+
+                    {% if item.class == "shoes" %}
+
+                        {% if ns.confidence is none or item.confidence > ns.confidence %}
+
+                            {% set ns.confidence = item.confidence %}
+
+                        {% endif %}
+
+                    {% endif %}
+
+                {% endfor %}
+
+
+                {% if ns.confidence is not none %}
+
+                    <div class="confidence">
+                        {{ "%.0f"|format(ns.confidence * 100) }}%
+                    </div>
+
+                {% else %}
+
+                    <div class="confidence">
+                        -
+                    </div>
+
+                {% endif %}
+
+            </div>
+
+
+        </div>
+
     </div>
 
+    {% endif %}
+
 </div>
+
+
+<!-- JavaScript สำหรับบันทึกรูป -->
+<script>
+
+async function saveResultImage() {
+
+    const image = document.querySelector(".result img");
+
+    if (!image) {
+
+        alert("ไม่พบรูปผลตรวจ");
+
+        return;
+    }
+
+
+    try {
+
+        /*
+         * ดึงรูปจาก Flask
+         */
+        const response = await fetch(
+            image.src,
+            {
+                cache: "no-store"
+            }
+        );
+
+
+        if (!response.ok) {
+
+            throw new Error("ไม่สามารถโหลดรูปได้");
+
+        }
+
+
+        /*
+         * แปลงรูปเป็น Blob
+         */
+        const blob = await response.blob();
+
+
+        /*
+         * สร้าง URL ชั่วคราว
+         */
+        const url = URL.createObjectURL(blob);
+
+
+        /*
+         * สร้างลิงก์ดาวน์โหลด
+         */
+        const link = document.createElement("a");
+
+        link.href = url;
+
+        link.download = "PEA_PPE_Result.jpg";
+
+
+        document.body.appendChild(link);
+
+        link.click();
+
+        document.body.removeChild(link);
+
+
+        /*
+         * ล้าง URL ชั่วคราว
+         */
+        URL.revokeObjectURL(url);
+
+    }
+
+    catch (error) {
+
+        console.error(error);
+
+        /*
+         * ถ้าบราวเซอร์ไม่ยอมดาวน์โหลด
+         * ให้เปิดรูปขึ้นมาแทน
+         */
+        window.open(
+            image.src,
+            "_blank"
+        );
+
+    }
+
+}
+
+</script>
+
 
 </body>
 </html>

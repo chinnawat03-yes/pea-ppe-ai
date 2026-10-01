@@ -45,10 +45,19 @@
             margin-top: 0;
         }
 
+        input[type="text"],
         input[type="file"] {
             width: 100%;
             padding: 12px;
             margin-bottom: 15px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            font-size: 16px;
+        }
+
+        input[type="text"]:focus {
+            outline: none;
+            border-color: #ffd400;
         }
 
         button {
@@ -242,6 +251,15 @@
 
         <form method="POST" enctype="multipart/form-data">
 
+            <!-- ชื่อพนักงาน -->
+            <input
+                type="text"
+                name="employee_name"
+                placeholder="👤 ชื่อพนักงาน"
+                required
+            >
+
+            <!-- รูปภาพ -->
             <input
                 type="file"
                 name="image"
@@ -644,7 +662,6 @@ async function saveResultImage() {
     }
 
 
-    // แสดงคำแนะนำ
     detectDevice();
 
     if (help) {
@@ -655,7 +672,7 @@ async function saveResultImage() {
     try {
 
         /*
-         * โหลดรูปผลตรวจเป็นไฟล์
+         * โหลดรูปผลตรวจ
          */
 
         const response =
@@ -696,8 +713,8 @@ async function saveResultImage() {
 
         /*
          * =========================
-         * iPhone / Android
-         * ใช้เมนู Share ของเครื่อง
+         * มือถือ
+         * ใช้ Share ของเครื่อง
          * =========================
          */
 
@@ -726,8 +743,7 @@ async function saveResultImage() {
 
         /*
          * =========================
-         * ถ้ามือถือไม่รองรับ File Share
-         * เปิดรูปแทน
+         * Fallback มือถือ
          * =========================
          */
 
@@ -757,7 +773,6 @@ async function saveResultImage() {
         /*
          * =========================
          * คอมพิวเตอร์
-         * ดาวน์โหลดอัตโนมัติ
          * =========================
          */
 
@@ -794,11 +809,6 @@ async function saveResultImage() {
         );
 
 
-        /*
-         * ถ้าผู้ใช้กดยกเลิก Share
-         * ไม่ต้องทำอะไรต่อ
-         */
-
         if (
             error &&
             error.name === "AbortError"
@@ -808,11 +818,6 @@ async function saveResultImage() {
 
         }
 
-
-        /*
-         * ถ้าเกิดปัญหา
-         * เปิดรูปให้บันทึกเอง
-         */
 
         window.open(
             image.src,

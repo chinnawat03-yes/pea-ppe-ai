@@ -56,6 +56,26 @@ def get_google_sheet():
 
 
 # =========================
+# แปลงชื่อ Class จากโมเดล
+# =========================
+
+def normalize_class(class_name):
+
+    class_map = {
+        "safety_shoes": "shoes",
+        "shoes": "shoes",
+        "helmet": "helmet",
+        "reflective_vest": "reflective_vest",
+        "gloves": "gloves"
+    }
+
+    return class_map.get(
+        class_name,
+        class_name
+    )
+
+
+# =========================
 # Main page
 # =========================
 
@@ -87,7 +107,7 @@ def home():
             images={
                 "image": "upload.jpg"
             },
-            use_cache=True
+            use_cache=False
         )
 
         image = Image.open("upload.jpg")
@@ -97,10 +117,29 @@ def home():
 
         detected_items = []
 
+        # =========================
+        # เตรียมผลตรวจ
+        # =========================
+
+        normalized_predictions = []
+
         for p in predictions:
 
+            cls = normalize_class(
+                p["class"]
+            )
+
+            normalized_predictions.append({
+                "class": cls,
+                "confidence": p["confidence"],
+                "x": p["x"],
+                "y": p["y"],
+                "width": p["width"],
+                "height": p["height"]
+            })
+
             detected_items.append({
-                "class": p["class"],
+                "class": cls,
                 "confidence": p["confidence"]
             })
 
@@ -119,7 +158,7 @@ def home():
         # วาดกรอบ
         # =========================
 
-        for p in predictions:
+        for p in normalized_predictions:
 
             x = p["x"]
             y = p["y"]
@@ -172,9 +211,8 @@ def home():
             "shoes": None
         }
 
-        # ถ้ามีหลายกล่องของชนิดเดียวกัน
         # เลือกค่าความมั่นใจสูงสุด
-        for p in predictions:
+        for p in normalized_predictions:
 
             cls = p["class"]
             confidence = p["confidence"]
@@ -192,7 +230,8 @@ def home():
         # =========================
 
         total_found = sum(
-            1 for value in ppe.values()
+            1
+            for value in ppe.values()
             if value is not None
         )
 
@@ -218,6 +257,7 @@ def home():
         for item, confidence in ppe.items():
 
             if confidence is None:
+
                 missing_items.append(
                     item_names[item]
                 )
@@ -310,7 +350,6 @@ def history():
 
         records = sheet.get_all_records()
 
-        # เรียงรายการล่าสุดขึ้นก่อน
         records.reverse()
 
         return render_template(
@@ -320,7 +359,9 @@ def history():
 
     except Exception as e:
 
-        return f"เกิดข้อผิดพลาดในการโหลดประวัติ: {e}"
+        return (
+            f"เกิดข้อผิดพลาดในการโหลดประวัติ: {e}"
+        )
 
 
 # =========================

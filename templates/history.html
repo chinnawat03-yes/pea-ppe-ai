@@ -197,30 +197,6 @@
 
     <!-- สถิติ -->
 
-    {% set total = records | length %}
-
-    {% set complete_count = 0 %}
-
-    {% set incomplete_count = 0 %}
-
-
-    {% for row in records %}
-
-        {% if row["ผลรวม"] == "ครบ" %}
-
-            {% set complete_count =
-                complete_count + 1 %}
-
-        {% else %}
-
-            {% set incomplete_count =
-                incomplete_count + 1 %}
-
-        {% endif %}
-
-    {% endfor %}
-
-
     <div class="stats">
 
 
@@ -231,7 +207,7 @@
             </div>
 
             <div class="stat-number">
-                {{ total }}
+                {{ total_count }}
             </div>
 
         </div>

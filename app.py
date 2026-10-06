@@ -144,13 +144,11 @@ def home():
             image
         )
 
-
         predictions = (
             result[0]
             ["predictions"]
             ["predictions"]
         )
-
 
         detected_items = []
 
@@ -187,7 +185,6 @@ def home():
                     p["height"]
 
             })
-
 
             detected_items.append({
 
@@ -231,63 +228,45 @@ def home():
             w = p["width"]
             h = p["height"]
 
-
             left = x - w / 2
             top = y - h / 2
             right = x + w / 2
             bottom = y + h / 2
-
 
             color = colors.get(
                 p["class"],
                 (160, 0, 160)
             )
 
-
             draw.rectangle(
-
                 [
                     left,
                     top,
                     right,
                     bottom
                 ],
-
                 outline=color,
-
                 width=10
-
             )
-
 
             label = (
-
                 f'{p["class"]} '
-
                 f'{p["confidence"]:.0%}'
-
             )
 
-
             draw.text(
-
                 (
                     left + 3,
                     max(3, top - 25)
                 ),
-
                 label,
-
                 fill=color,
-
                 stroke_width=2,
-
                 stroke_fill=(
                     255,
                     255,
                     255
                 )
-
             )
 
 
@@ -299,35 +278,21 @@ def home():
             ZoneInfo("Asia/Bangkok")
         )
 
-
         result_filename = (
-
             f'result_'
-
             f'{now.strftime("%Y%m%d_%H%M%S_%f")}'
-
             f'.jpg'
-
         )
-
 
         result_path = os.path.join(
-
             "static",
-
             result_filename
-
         )
-
 
         image.save(
-
             result_path,
-
             quality=95
-
         )
-
 
         result_image = result_filename
 
@@ -363,18 +328,12 @@ def home():
 
             confidence = p["confidence"]
 
-
             if cls in ppe:
 
                 if (
-
                     ppe[cls] is None
-
                     or
-
-                    confidence >
-                    ppe[cls]
-
+                    confidence > ppe[cls]
                 ):
 
                     ppe[cls] = confidence
@@ -393,7 +352,6 @@ def home():
             if value is not None
 
         )
-
 
         status = (
 
@@ -426,20 +384,15 @@ def home():
 
         }
 
-
         missing_items = []
-
 
         for item, confidence in ppe.items():
 
             if confidence is None:
 
                 missing_items.append(
-
                     item_names[item]
-
                 )
-
 
         if missing_items:
 
@@ -460,11 +413,9 @@ def home():
 
             sheet = get_google_sheet()
 
-
             now = datetime.now(
                 ZoneInfo("Asia/Bangkok")
             )
-
 
             sheet.append_row([
 
@@ -514,11 +465,9 @@ def home():
 
             ])
 
-
             print(
                 "บันทึก Google Sheets สำเร็จ"
             )
-
 
         except Exception as e:
 
@@ -560,14 +509,87 @@ def history():
 
         records = sheet.get_all_records()
 
+
+        # =========================
+        # นับจำนวนทั้งหมด
+        # =========================
+
+        total_count = len(records)
+
+
+        # =========================
+        # นับ PPE ครบ
+        # =========================
+
+        complete_count = sum(
+
+            1
+
+            for row in records
+
+            if str(
+                row.get("ผลรวม", "")
+            ).strip() == "ครบ"
+
+        )
+
+
+        # =========================
+        # นับ PPE ไม่ครบ
+        # =========================
+
+        incomplete_count = sum(
+
+            1
+
+            for row in records
+
+            if str(
+                row.get("ผลรวม", "")
+            ).strip() == "ไม่ครบ"
+
+        )
+
+
+        # =========================
+        # คำนวณอัตราครบ
+        # =========================
+
+        complete_rate = (
+
+            complete_count / total_count
+
+            if total_count > 0
+
+            else 0
+
+        )
+
+
+        # =========================
+        # เรียงล่าสุดขึ้นก่อน
+        # =========================
+
         records.reverse()
 
+
+        # =========================
+        # ส่งข้อมูลให้ history.html
+        # =========================
 
         return render_template(
 
             "history.html",
 
-            records=records
+            records=records,
+
+            total_count=total_count,
+
+            complete_count=complete_count,
+
+            incomplete_count=incomplete_count,
+
+            complete_rate=complete_rate
 
         )
 

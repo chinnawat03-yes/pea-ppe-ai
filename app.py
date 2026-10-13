@@ -1,3 +1,4 @@
+
 from flask import Flask, render_template, request
 from inference_sdk import InferenceHTTPClient, InferenceConfiguration
 from PIL import Image, ImageDraw, ImageOps
@@ -32,7 +33,6 @@ client = InferenceHTTPClient(
 # =========================
 
 def get_google_sheet():
-
     credentials_info = json.loads(
         os.environ["GOOGLE_CREDENTIALS_JSON"]
     )
@@ -60,7 +60,6 @@ def get_google_sheet():
 # =========================
 
 def normalize_class(class_name):
-
     class_map = {
         "safety_shoes": "shoes",
         "shoes": "shoes",
@@ -69,10 +68,7 @@ def normalize_class(class_name):
         "gloves": "gloves"
     }
 
-    return class_map.get(
-        class_name,
-        class_name
-    )
+    return class_map.get(class_name, class_name)
 
 
 # =========================
@@ -81,148 +77,69 @@ def normalize_class(class_name):
 
 @app.route("/", methods=["GET", "POST"])
 def home():
-
     result_image = None
     detected_items = []
     status = None
     missing_text = None
 
     if request.method == "POST":
-
-        # =========================
-        # รับชื่อพนักงาน
-        # =========================
-
         employee_name = request.form.get(
-            "employee_name",
-            ""
+            "employee_name", ""
         ).strip()
 
         file = request.files["image"]
 
-
-        # =========================
         # เตรียมรูป
-        # =========================
-
         image = Image.open(file)
-
-        image = ImageOps.exif_transpose(
-            image
-        )
-
+        image = ImageOps.exif_transpose(image)
         image = image.convert("RGB")
+        image.save("upload.jpg")
 
-        image.save(
-            "upload.jpg"
-        )
-
-
-        # =========================
         # เรียก Roboflow
-        # =========================
-
         result = client.run_workflow(
             workspace_name="chinnawat-kf2et",
             workflow_id="pea_ppe_detection",
-            images={
-                "image": "upload.jpg"
-            },
+            images={"image": "upload.jpg"},
             use_cache=False
         )
 
-
-        # =========================
         # เปิดรูปเพื่อวาดผล
-        # =========================
+        image = Image.open("upload.jpg").convert("RGB")
+        draw = ImageDraw.Draw(image)
 
-        image = Image.open(
-            "upload.jpg"
-        ).convert("RGB")
-
-        draw = ImageDraw.Draw(
-            image
-        )
-
-        predictions = (
-            result[0]
-            ["predictions"]
-            ["predictions"]
-        )
+        predictions = result[0]["predictions"]["predictions"]
 
         detected_items = []
-
         normalized_predictions = []
 
-
-        # =========================
         # แปลงผล Prediction
-        # =========================
-
         for p in predictions:
-
-            cls = normalize_class(
-                p["class"]
-            )
+            cls = normalize_class(p["class"])
 
             normalized_predictions.append({
-
                 "class": cls,
-
-                "confidence":
-                    p["confidence"],
-
-                "x":
-                    p["x"],
-
-                "y":
-                    p["y"],
-
-                "width":
-                    p["width"],
-
-                "height":
-                    p["height"]
-
+                "confidence": p["confidence"],
+                "x": p["x"],
+                "y": p["y"],
+                "width": p["width"],
+                "height": p["height"]
             })
 
             detected_items.append({
-
                 "class": cls,
-
-                "confidence":
-                    p["confidence"]
-
+                "confidence": p["confidence"]
             })
 
-
-        # =========================
         # สีของ Bounding Box
-        # =========================
-
         colors = {
-
-            "helmet":
-                (255, 0, 0),
-
-            "reflective_vest":
-                (0, 102, 255),
-
-            "gloves":
-                (0, 180, 0),
-
-            "shoes":
-                (255, 140, 0)
-
+            "helmet": (255, 0, 0),
+            "reflective_vest": (0, 102, 255),
+            "gloves": (0, 180, 0),
+            "shoes": (255, 140, 0)
         }
 
-
-        # =========================
         # วาด Bounding Box
-        # =========================
-
         for p in normalized_predictions:
-
             x = p["x"]
             y = p["y"]
             w = p["width"]
@@ -239,12 +156,7 @@ def home():
             )
 
             draw.rectangle(
-                [
-                    left,
-                    top,
-                    right,
-                    bottom
-                ],
+                [left, top, right, bottom],
                 outline=color,
                 width=10
             )
@@ -255,33 +167,18 @@ def home():
             )
 
             draw.text(
-                (
-                    left + 3,
-                    max(3, top - 25)
-                ),
+                (left + 3, max(3, top - 25)),
                 label,
                 fill=color,
                 stroke_width=2,
-                stroke_fill=(
-                    255,
-                    255,
-                    255
-                )
+                stroke_fill=(255, 255, 255)
             )
 
-
-        # =========================
         # สร้างชื่อไฟล์ผลตรวจ
-        # =========================
-
-        now = datetime.now(
-            ZoneInfo("Asia/Bangkok")
-        )
+        now = datetime.now(ZoneInfo("Asia/Bangkok"))
 
         result_filename = (
-            f'result_'
-            f'{now.strftime("%Y%m%d_%H%M%S_%f")}'
-            f'.jpg'
+            f'result_{now.strftime("%Y%m%d_%H%M%S_%f")}.jpg'
         )
 
         result_path = os.path.join(
@@ -289,318 +186,200 @@ def home():
             result_filename
         )
 
-        image.save(
-            result_path,
-            quality=95
-        )
-
+        image.save(result_path, quality=95)
         result_image = result_filename
 
-
-        # =========================
         # เตรียม PPE
-        # =========================
-
         ppe = {
-
-            "helmet":
-                None,
-
-            "reflective_vest":
-                None,
-
-            "gloves":
-                None,
-
-            "shoes":
-                None
-
+            "helmet": None,
+            "reflective_vest": None,
+            "gloves": None,
+            "shoes": None
         }
 
-
-        # =========================
         # หาค่า Confidence สูงสุด
-        # =========================
-
         for p in normalized_predictions:
-
             cls = p["class"]
-
             confidence = p["confidence"]
 
             if cls in ppe:
-
                 if (
                     ppe[cls] is None
-                    or
-                    confidence > ppe[cls]
+                    or confidence > ppe[cls]
                 ):
-
                     ppe[cls] = confidence
 
-
-        # =========================
         # ตรวจว่าครบหรือไม่
-        # =========================
-
         total_found = sum(
-
-            1
-
-            for value in ppe.values()
-
+            1 for value in ppe.values()
             if value is not None
-
         )
 
-        status = (
+        status = "ครบ" if total_found == 4 else "ไม่ครบ"
 
-            "ครบ"
-
-            if total_found == 4
-
-            else "ไม่ครบ"
-
-        )
-
-
-        # =========================
         # หาว่าขาดอะไร
-        # =========================
-
         item_names = {
-
-            "helmet":
-                "Helmet",
-
-            "reflective_vest":
-                "Vest",
-
-            "gloves":
-                "Gloves",
-
-            "shoes":
-                "Shoes"
-
+            "helmet": "Helmet",
+            "reflective_vest": "Vest",
+            "gloves": "Gloves",
+            "shoes": "Shoes"
         }
 
         missing_items = []
 
         for item, confidence in ppe.items():
-
             if confidence is None:
+                missing_items.append(item_names[item])
 
-                missing_items.append(
-                    item_names[item]
-                )
+        missing_text = (
+            ", ".join(missing_items)
+            if missing_items
+            else "ไม่มี"
+        )
 
-        if missing_items:
-
-            missing_text = ", ".join(
-                missing_items
-            )
-
-        else:
-
-            missing_text = "ไม่มี"
-
-
-        # =========================
         # บันทึก Google Sheets
-        # =========================
-
         try:
-
             sheet = get_google_sheet()
-
-            now = datetime.now(
-                ZoneInfo("Asia/Bangkok")
-            )
+            now = datetime.now(ZoneInfo("Asia/Bangkok"))
 
             sheet.append_row([
-
-                # วันที่
-                now.strftime(
-                    "%d/%m/%Y"
-                ),
-
-                # เวลา
-                now.strftime(
-                    "%H:%M:%S"
-                ),
-
-                # ชื่อพนักงาน
+                now.strftime("%d/%m/%Y"),
+                now.strftime("%H:%M:%S"),
                 employee_name,
-
-                # Helmet
                 (
                     f'{ppe["helmet"]:.0%}'
                     if ppe["helmet"] is not None
                     else "-"
                 ),
-
-                # Vest
                 (
                     f'{ppe["reflective_vest"]:.0%}'
                     if ppe["reflective_vest"] is not None
                     else "-"
                 ),
-
-                # Gloves
                 (
                     f'{ppe["gloves"]:.0%}'
                     if ppe["gloves"] is not None
                     else "-"
                 ),
-
-                # Shoes
                 (
                     f'{ppe["shoes"]:.0%}'
                     if ppe["shoes"] is not None
                     else "-"
                 ),
-
-                # ผลรวม
                 status
-
             ])
 
-            print(
-                "บันทึก Google Sheets สำเร็จ"
-            )
+            print("บันทึก Google Sheets สำเร็จ")
 
         except Exception as e:
+            print("Google Sheets Error:", e)
 
-            print(
-                "Google Sheets Error:",
-                e
-            )
-
-
-    # =========================
     # แสดงหน้าเว็บ
-    # =========================
-
     return render_template(
-
         "index.html",
-
         result_image=result_image,
-
         detected_items=detected_items,
-
         status=status,
-
         missing_text=missing_text
-
     )
 
 
 # =========================
-# History
+# History Dashboard
 # =========================
 
 @app.route("/history")
 def history():
-
     try:
-
         sheet = get_google_sheet()
-
         records = sheet.get_all_records()
 
-
-        # =========================
-        # นับจำนวนทั้งหมด
-        # =========================
-
-        total_count = len(records)
-
-
-        # =========================
-        # นับ PPE ครบ
-        # =========================
-
-        complete_count = sum(
-
-            1
-
-            for row in records
-
-            if str(
-                row.get("ผลรวม", "")
-            ).strip() == "ครบ"
-
-        )
-
-
-        # =========================
-        # นับ PPE ไม่ครบ
-        # =========================
-
-        incomplete_count = sum(
-
-            1
-
-            for row in records
-
-            if str(
-                row.get("ผลรวม", "")
-            ).strip() == "ไม่ครบ"
-
-        )
-
-
-        # =========================
-        # คำนวณอัตราครบ
-        # =========================
-
-        complete_rate = (
-
-            complete_count / total_count
-
-            if total_count > 0
-
-            else 0
-
-        )
-
-
-        # =========================
-        # เรียงล่าสุดขึ้นก่อน
-        # =========================
-
+        # เรียงข้อมูลล่าสุดขึ้นก่อน
         records.reverse()
 
+        # สรุปผลการตรวจสอบ
+        total_count = len(records)
 
-        # =========================
-        # ส่งข้อมูลให้ history.html
-        # =========================
-
-        return render_template(
-
-            "history.html",
-
-            records=records,
-
-            total_count=total_count,
-
-            complete_count=complete_count,
-
-            incomplete_count=incomplete_count,
-
-            complete_rate=complete_rate
-
+        complete_count = sum(
+            1 for row in records
+            if str(row.get("ผลรวม", "")).strip() == "ครบ"
         )
 
+        incomplete_count = sum(
+            1 for row in records
+            if str(row.get("ผลรวม", "")).strip() == "ไม่ครบ"
+        )
+
+        complete_rate = (
+            complete_count / total_count
+            if total_count > 0
+            else 0
+        )
+
+        # สรุปผลแยกตามวันที่
+        daily_data = {}
+
+        for row in records:
+            date = str(row.get("วันที่", "")).strip()
+            status_value = str(
+                row.get("ผลรวม", "")
+            ).strip()
+
+            if not date:
+                continue
+
+            if date not in daily_data:
+                daily_data[date] = {
+                    "ครบ": 0,
+                    "ไม่ครบ": 0
+                }
+
+            if status_value == "ครบ":
+                daily_data[date]["ครบ"] += 1
+            elif status_value == "ไม่ครบ":
+                daily_data[date]["ไม่ครบ"] += 1
+
+        # เรียงวันที่ โดยรองรับวันที่รูปแบบ DD/MM/YYYY
+        def parse_date(value):
+            try:
+                return datetime.strptime(value, "%d/%m/%Y")
+            except ValueError:
+                return datetime.min
+
+        sorted_dates = sorted(
+            daily_data.keys(),
+            key=parse_date
+        )
+
+        # แสดง 14 วันที่มีรายการล่าสุด
+        chart_dates = sorted_dates[-14:]
+
+        chart_complete = [
+            daily_data[date]["ครบ"]
+            for date in chart_dates
+        ]
+
+        chart_incomplete = [
+            daily_data[date]["ไม่ครบ"]
+            for date in chart_dates
+        ]
+
+        # ส่งข้อมูลไปยังหน้า Dashboard
+        return render_template(
+            "history.html",
+            records=records,
+            total_count=total_count,
+            complete_count=complete_count,
+            incomplete_count=incomplete_count,
+            complete_rate=complete_rate,
+            chart_dates=chart_dates,
+            chart_complete=chart_complete,
+            chart_incomplete=chart_incomplete
+        )
 
     except Exception as e:
-
-        return (
-
-            f"เกิดข้อผิดพลาดในการโหลดประวัติ: {e}"
-
-        )
+        print("History Error:", e)
+        return f"เกิดข้อผิดพลาดในการโหลดประวัติ: {e}"
 
 
 # =========================
@@ -608,23 +387,8 @@ def history():
 # =========================
 
 if __name__ == "__main__":
-
     app.run(
-
         host="0.0.0.0",
-
-        port=int(
-
-            os.environ.get(
-
-                "PORT",
-
-                5000
-
-            )
-
-        ),
-
+        port=int(os.environ.get("PORT", 5000)),
         debug=False
-
     )

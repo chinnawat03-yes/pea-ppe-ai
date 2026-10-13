@@ -1,338 +1,492 @@
+
 <!DOCTYPE html>
 <html lang="th">
 
 <head>
-
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <meta
-        name="viewport"
-        content="width=device-width, initial-scale=1.0"
-    >
+    <title>PEA PPE AI - Dashboard ประวัติการตรวจ</title>
 
-    <title>PEA PPE AI - ประวัติการตรวจ</title>
+    <!-- ไลบรารีสำหรับสร้างกราฟ -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
     <style>
-
         * {
             box-sizing: border-box;
         }
 
         body {
-
-            font-family: Arial, sans-serif;
-
+            font-family: Arial, Tahoma, sans-serif;
             background: #f5f5f5;
-
+            color: #222;
             margin: 0;
-
             padding: 20px;
         }
 
         .container {
-
-            max-width: 1100px;
-
+            max-width: 1150px;
             margin: auto;
         }
 
         h1 {
-
             text-align: center;
-
-            margin-bottom: 25px;
+            margin: 5px 0 25px;
         }
 
         .back-button {
-
             display: inline-block;
-
             margin-bottom: 20px;
-
             padding: 12px 18px;
-
             background: #333;
-
             color: white;
-
             text-decoration: none;
-
             border-radius: 8px;
         }
 
+        .back-button:hover {
+            background: #555;
+        }
+
         /* กล่องสถิติ */
-
         .stats {
-
             display: grid;
-
-            grid-template-columns:
-                repeat(3, 1fr);
-
+            grid-template-columns: repeat(3, minmax(0, 1fr));
             gap: 15px;
-
-            margin-bottom: 25px;
+            margin-bottom: 20px;
         }
 
         .stat-box {
-
             background: white;
-
             padding: 20px;
-
             border-radius: 12px;
-
             text-align: center;
-
-            box-shadow:
-                0 2px 8px
-                rgba(0,0,0,0.08);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+            border-top: 4px solid #ffd600;
         }
 
         .stat-title {
-
             font-size: 16px;
-
             color: #666;
-
             margin-bottom: 10px;
         }
 
         .stat-number {
-
             font-size: 32px;
-
             font-weight: bold;
         }
 
-        .table-box {
+        .blue {
+            color: #2563eb;
+        }
 
+        .green {
+            color: #16a34a;
+        }
+
+        .orange {
+            color: #d97706;
+        }
+
+        /* อัตราการตรวจครบ */
+        .rate-box {
             background: white;
-
+            padding: 20px;
+            margin-bottom: 20px;
             border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+        }
 
-            padding: 15px;
+        .rate-heading {
+            display: flex;
+            justify-content: space-between;
+            gap: 10px;
+            margin-bottom: 12px;
+            font-weight: bold;
+        }
 
+        .progress {
+            width: 100%;
+            height: 14px;
+            background: #e5e7eb;
+            border-radius: 20px;
+            overflow: hidden;
+        }
+
+        .progress-bar {
+            height: 100%;
+            background: #16a34a;
+            border-radius: 20px;
+        }
+
+        /* ส่วนกราฟ */
+        .charts {
+            display: grid;
+            grid-template-columns: minmax(0, 1fr) minmax(0, 1.5fr);
+            gap: 20px;
+            margin-bottom: 25px;
+        }
+
+        .chart-box {
+            background: white;
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+            min-width: 0;
+        }
+
+        .chart-box h2 {
+            font-size: 18px;
+            margin: 0 0 18px;
+        }
+
+        .chart-area {
+            position: relative;
+            height: 300px;
+        }
+
+        .no-data {
+            color: #777;
+            text-align: center;
+            padding: 25px 10px;
+        }
+
+        /* ตารางประวัติ */
+        .table-box {
+            background: white;
+            border-radius: 12px;
+            padding: 18px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+        }
+
+        .table-box h2 {
+            margin: 0 0 16px;
+            font-size: 20px;
+        }
+
+        .table-wrap {
             overflow-x: auto;
         }
 
         table {
-
             width: 100%;
-
             border-collapse: collapse;
-
             min-width: 800px;
         }
 
         th,
         td {
-
             padding: 12px;
-
-            border-bottom:
-                1px solid #ddd;
-
+            border-bottom: 1px solid #ddd;
             text-align: center;
+            white-space: nowrap;
         }
 
         th {
-
             background: #ffd600;
-
             font-weight: bold;
         }
 
-        tr:hover {
-
+        tbody tr:hover {
             background: #fafafa;
         }
 
         .complete {
-
-            color: green;
-
+            color: #15803d;
             font-weight: bold;
         }
 
         .incomplete {
-
             color: #d97706;
-
             font-weight: bold;
         }
 
-        @media (max-width: 700px) {
+        @media (max-width: 760px) {
+            body {
+                padding: 12px;
+            }
 
             .stats {
+                grid-template-columns: 1fr;
+                gap: 10px;
+            }
 
+            .charts {
                 grid-template-columns: 1fr;
             }
 
+            .chart-area {
+                height: 270px;
+            }
+
+            .stat-box {
+                padding: 15px;
+            }
+
+            .stat-number {
+                font-size: 28px;
+            }
         }
-
     </style>
-
 </head>
-
 
 <body>
 
-
 <div class="container">
 
+    <h1>📊 Dashboard ประวัติการตรวจ PPE</h1>
 
-    <h1>
-        📊 ประวัติการตรวจ PPE
-    </h1>
-
-
-    <a
-        href="/"
-        class="back-button"
-    >
+    <a href="/" class="back-button">
         ← กลับหน้าตรวจ
     </a>
 
-
-    <!-- สถิติ -->
-
-    <div class="stats">
-
+    <!-- กล่องสรุปสถิติ -->
+    <section class="stats">
 
         <div class="stat-box">
-
-            <div class="stat-title">
-                ตรวจทั้งหมด
-            </div>
-
-            <div class="stat-number">
-                {{ total_count }}
-            </div>
-
+            <div class="stat-title">ตรวจทั้งหมด</div>
+            <div class="stat-number blue">{{ total_count }}</div>
         </div>
-
 
         <div class="stat-box">
-
-            <div class="stat-title">
-                ตรวจครบ
-            </div>
-
-            <div class="stat-number">
-                {{ complete_count }}
-            </div>
-
+            <div class="stat-title">ตรวจครบ</div>
+            <div class="stat-number green">{{ complete_count }}</div>
         </div>
-
 
         <div class="stat-box">
-
-            <div class="stat-title">
-                ตรวจไม่ครบ
-            </div>
-
-            <div class="stat-number">
-                {{ incomplete_count }}
-            </div>
-
+            <div class="stat-title">ตรวจไม่ครบ</div>
+            <div class="stat-number orange">{{ incomplete_count }}</div>
         </div>
 
+    </section>
 
-    </div>
+    <!-- อัตราการตรวจครบ -->
+    <section class="rate-box">
 
+        <div class="rate-heading">
+            <span>อัตราการตรวจพบ PPE ครบ</span>
+            <span>{{ "%.1f"|format(complete_rate * 100) }}%</span>
+        </div>
 
-    <!-- ตาราง -->
+        <div class="progress">
+            <div
+                class="progress-bar"
+                style="width: {{ complete_rate * 100 }}%;"
+            ></div>
+        </div>
 
-    <div class="table-box">
+    </section>
 
+    <!-- กราฟ Dashboard -->
+    <section class="charts">
 
-        <table>
+        <div class="chart-box">
+            <h2>สัดส่วนผลการตรวจสอบ</h2>
 
+            {% if total_count > 0 %}
+            <div class="chart-area">
+                <canvas id="statusChart"></canvas>
+            </div>
+            {% else %}
+            <div class="no-data">ยังไม่มีข้อมูลสำหรับสร้างกราฟ</div>
+            {% endif %}
+        </div>
 
-            <thead>
+        <div class="chart-box">
+            <h2>ผลการตรวจสอบแยกตามวันที่</h2>
 
-                <tr>
+            {% if chart_dates %}
+            <div class="chart-area">
+                <canvas id="dailyChart"></canvas>
+            </div>
+            {% else %}
+            <div class="no-data">ยังไม่มีข้อมูลรายวันสำหรับสร้างกราฟ</div>
+            {% endif %}
+        </div>
 
-                    <th>วันที่</th>
+    </section>
 
-                    <th>เวลา</th>
+    <!-- ตารางประวัติ -->
+    <section class="table-box">
 
-                    <th>ชื่อพนักงาน</th>
+        <h2>📋 รายการตรวจสอบย้อนหลัง</h2>
 
-                    <th>Helmet</th>
+        {% if records %}
 
-                    <th>Vest</th>
+        <div class="table-wrap">
+            <table>
 
-                    <th>Gloves</th>
+                <thead>
+                    <tr>
+                        <th>วันที่</th>
+                        <th>เวลา</th>
+                        <th>ชื่อพนักงาน</th>
+                        <th>Helmet</th>
+                        <th>Vest</th>
+                        <th>Gloves</th>
+                        <th>Shoes</th>
+                        <th>ผลรวม</th>
+                    </tr>
+                </thead>
 
-                    <th>Shoes</th>
+                <tbody>
+                    {% for row in records %}
+                    <tr>
+                        <td>{{ row.get("วันที่", "-") }}</td>
+                        <td>{{ row.get("เวลา", "-") }}</td>
+                        <td>{{ row.get("ชื่อพนักงาน", "-") }}</td>
+                        <td>{{ row.get("Helmet", "-") }}</td>
+                        <td>{{ row.get("Vest", "-") }}</td>
+                        <td>{{ row.get("Gloves", "-") }}</td>
+                        <td>{{ row.get("Shoes", "-") }}</td>
 
-                    <th>ผลรวม</th>
+                        <td class="{% if row.get('ผลรวม', '')|string|trim == 'ครบ' %}complete{% else %}incomplete{% endif %}">
+                            {{ row.get("ผลรวม", "-") }}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
 
-                </tr>
+            </table>
+        </div>
 
-            </thead>
+        {% else %}
 
+        <div class="no-data">
+            ยังไม่มีประวัติการตรวจสอบ PPE
+        </div>
 
-            <tbody>
+        {% endif %}
 
-
-                {% for row in records %}
-
-                <tr>
-
-                    <td>
-                        {{ row["วันที่"] }}
-                    </td>
-
-                    <td>
-                        {{ row["เวลา"] }}
-                    </td>
-
-                    <td>
-                        {{ row["ชื่อพนักงาน"] }}
-                    </td>
-
-                    <td>
-                        {{ row["Helmet"] }}
-                    </td>
-
-                    <td>
-                        {{ row["Vest"] }}
-                    </td>
-
-                    <td>
-                        {{ row["Gloves"] }}
-                    </td>
-
-                    <td>
-                        {{ row["Shoes"] }}
-                    </td>
-
-                    <td
-                        class="{% if row['ผลรวม'] == 'ครบ' %}complete{% else %}incomplete{% endif %}"
-                    >
-                        {{ row["ผลรวม"] }}
-                    </td>
-
-                </tr>
-
-                {% endfor %}
-
-
-            </tbody>
-
-
-        </table>
-
-
-    </div>
-
+    </section>
 
 </div>
 
+<script>
+    // กราฟวงแหวน: สัดส่วนผลการตรวจสอบ
+    {% if total_count > 0 %}
+    const statusCanvas = document.getElementById("statusChart");
+
+    new Chart(statusCanvas, {
+        type: "doughnut",
+
+        data: {
+            labels: ["ครบ", "ไม่ครบ"],
+
+            datasets: [{
+                data: [
+                    {{ complete_count }},
+                    {{ incomplete_count }}
+                ],
+
+                backgroundColor: [
+                    "#16a34a",
+                    "#f97316"
+                ],
+
+                borderColor: "#ffffff",
+                borderWidth: 3,
+                hoverOffset: 8
+            }]
+        },
+
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+
+            plugins: {
+                legend: {
+                    position: "bottom"
+                },
+
+                tooltip: {
+                    callbacks: {
+                        label: function(context) {
+                            const total = context.dataset.data.reduce(
+                                (sum, value) => sum + value,
+                                0
+                            );
+
+                            const value = context.raw;
+                            const percent = total
+                                ? (value / total * 100).toFixed(1)
+                                : 0;
+
+                            return `${context.label}: ${value} (${percent}%)`;
+                        }
+                    }
+                }
+            }
+        }
+    });
+    {% endif %}
+
+    // กราฟแท่ง: จำนวนผลตรวจในแต่ละวันที่มีข้อมูล
+    {% if chart_dates %}
+    const dailyCanvas = document.getElementById("dailyChart");
+
+    new Chart(dailyCanvas, {
+        type: "bar",
+
+        data: {
+            labels: {{ chart_dates | tojson }},
+
+            datasets: [
+                {
+                    label: "ครบ",
+                    data: {{ chart_complete | tojson }},
+                    backgroundColor: "#16a34a",
+                    borderRadius: 5
+                },
+                {
+                    label: "ไม่ครบ",
+                    data: {{ chart_incomplete | tojson }},
+                    backgroundColor: "#f97316",
+                    borderRadius: 5
+                }
+            ]
+        },
+
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+
+            interaction: {
+                mode: "index",
+                intersect: false
+            },
+
+            scales: {
+                x: {
+                    ticks: {
+                        maxRotation: 45,
+                        minRotation: 0
+                    }
+                },
+
+                y: {
+                    beginAtZero: true,
+
+                    ticks: {
+                        precision: 0
+                    },
+
+                    title: {
+                        display: true,
+                        text: "จำนวนครั้ง"
+                    }
+                }
+            },
+
+            plugins: {
+                legend: {
+                    position: "bottom"
+                }
+            }
+        }
+    });
+    {% endif %}
+</script>
 
 </body>
-
 </html>

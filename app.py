@@ -1,4 +1,4 @@
-```python
+
 from flask import Flask, render_template, request
 from inference_sdk import InferenceHTTPClient, InferenceConfiguration
 from PIL import Image, ImageDraw, ImageOps

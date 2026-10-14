@@ -242,7 +242,6 @@
 
 <div class="container">
 
-    <!-- อัปโหลดรูป -->
     <div class="card">
         <h2>📷 ตรวจสอบอุปกรณ์ PPE</h2>
 
@@ -251,7 +250,6 @@
                 type="text"
                 name="employee_name"
                 placeholder="👤 ชื่อพนักงาน"
-                value="{{ employee_name }}"
                 required
             >
 
@@ -270,7 +268,6 @@
 
     {% if result_image %}
 
-    <!-- ผลตรวจ -->
     <div class="card result">
         <h2>📊 ผลการตรวจ</h2>
 
@@ -293,7 +290,7 @@
 
             <div id="androidHelp" class="android">
                 🤖 <strong>Android:</strong>
-                เลือกดาวน์โหลดหรือบันทึกรูปภาพในเมนูที่แสดง
+                หลังจากกดบันทึก ให้เลือกดาวน์โหลดหรือบันทึกรูปภาพ
             </div>
 
             <br>
@@ -320,7 +317,6 @@
         </a>
     </div>
 
-    <!-- สถานะรวม -->
     <div class="card">
         {% if status == "ครบ" %}
             <div class="status complete">
@@ -340,7 +336,6 @@
         {% endif %}
     </div>
 
-    <!-- รายละเอียด PPE -->
     <div class="card">
         <h2>🦺 รายละเอียด PPE</h2>
 
@@ -350,14 +345,16 @@
             <div class="ppe-card">
                 <h3>🪖 Helmet</h3>
 
-                {% set ns = namespace(found=false) %}
+                {% set ns = namespace(confidence=None) %}
                 {% for item in detected_items %}
                     {% if item.class == "helmet" %}
-                        {% set ns.found = true %}
+                        {% if ns.confidence is none or item.confidence > ns.confidence %}
+                            {% set ns.confidence = item.confidence %}
+                        {% endif %}
                     {% endif %}
                 {% endfor %}
 
-                {% if ns.found %}
+                {% if ns.confidence is not none %}
                     <div class="confidence ppe-found">✓</div>
                     <div class="ppe-label">ตรวจพบ</div>
                 {% else %}
@@ -370,14 +367,16 @@
             <div class="ppe-card">
                 <h3>🦺 Vest</h3>
 
-                {% set ns = namespace(found=false) %}
+                {% set ns = namespace(confidence=None) %}
                 {% for item in detected_items %}
                     {% if item.class == "reflective_vest" %}
-                        {% set ns.found = true %}
+                        {% if ns.confidence is none or item.confidence > ns.confidence %}
+                            {% set ns.confidence = item.confidence %}
+                        {% endif %}
                     {% endif %}
                 {% endfor %}
 
-                {% if ns.found %}
+                {% if ns.confidence is not none %}
                     <div class="confidence ppe-found">✓</div>
                     <div class="ppe-label">ตรวจพบ</div>
                 {% else %}
@@ -390,14 +389,16 @@
             <div class="ppe-card">
                 <h3>🧤 Gloves</h3>
 
-                {% set ns = namespace(found=false) %}
+                {% set ns = namespace(confidence=None) %}
                 {% for item in detected_items %}
                     {% if item.class == "gloves" %}
-                        {% set ns.found = true %}
+                        {% if ns.confidence is none or item.confidence > ns.confidence %}
+                            {% set ns.confidence = item.confidence %}
+                        {% endif %}
                     {% endif %}
                 {% endfor %}
 
-                {% if ns.found %}
+                {% if ns.confidence is not none %}
                     <div class="confidence ppe-found">✓</div>
                     <div class="ppe-label">ตรวจพบ</div>
                 {% else %}
@@ -410,14 +411,16 @@
             <div class="ppe-card">
                 <h3>👞 Shoes</h3>
 
-                {% set ns = namespace(found=false) %}
+                {% set ns = namespace(confidence=None) %}
                 {% for item in detected_items %}
                     {% if item.class == "shoes" %}
-                        {% set ns.found = true %}
+                        {% if ns.confidence is none or item.confidence > ns.confidence %}
+                            {% set ns.confidence = item.confidence %}
+                        {% endif %}
                     {% endif %}
                 {% endfor %}
 
-                {% if ns.found %}
+                {% if ns.confidence is not none %}
                     <div class="confidence ppe-found">✓</div>
                     <div class="ppe-label">ตรวจพบ</div>
                 {% else %}

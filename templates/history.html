@@ -1,4 +1,4 @@
-
+```html
 <!DOCTYPE html>
 <html lang="th">
 
@@ -201,6 +201,19 @@
             font-weight: bold;
         }
 
+        /* เครื่องหมายตรวจพบและไม่พบ PPE */
+        .ppe-check {
+            color: #16a34a;
+            font-size: 24px;
+            font-weight: bold;
+        }
+
+        .ppe-cross {
+            color: #dc2626;
+            font-size: 24px;
+            font-weight: bold;
+        }
+
         @media (max-width: 760px) {
             body {
                 padding: 12px;
@@ -335,11 +348,44 @@
                         <td>{{ row.get("วันที่", "-") }}</td>
                         <td>{{ row.get("เวลา", "-") }}</td>
                         <td>{{ row.get("ชื่อพนักงาน", "-") }}</td>
-                        <td>{{ row.get("Helmet", "-") }}</td>
-                        <td>{{ row.get("Vest", "-") }}</td>
-                        <td>{{ row.get("Gloves", "-") }}</td>
-                        <td>{{ row.get("Shoes", "-") }}</td>
 
+                        <!-- Helmet -->
+                        <td>
+                            {% if row.get("Helmet", "-")|string|trim not in ["-", "", "None"] %}
+                                <span class="ppe-check">✓</span>
+                            {% else %}
+                                <span class="ppe-cross">✗</span>
+                            {% endif %}
+                        </td>
+
+                        <!-- Vest -->
+                        <td>
+                            {% if row.get("Vest", "-")|string|trim not in ["-", "", "None"] %}
+                                <span class="ppe-check">✓</span>
+                            {% else %}
+                                <span class="ppe-cross">✗</span>
+                            {% endif %}
+                        </td>
+
+                        <!-- Gloves -->
+                        <td>
+                            {% if row.get("Gloves", "-")|string|trim not in ["-", "", "None"] %}
+                                <span class="ppe-check">✓</span>
+                            {% else %}
+                                <span class="ppe-cross">✗</span>
+                            {% endif %}
+                        </td>
+
+                        <!-- Shoes -->
+                        <td>
+                            {% if row.get("Shoes", "-")|string|trim not in ["-", "", "None"] %}
+                                <span class="ppe-check">✓</span>
+                            {% else %}
+                                <span class="ppe-cross">✗</span>
+                            {% endif %}
+                        </td>
+
+                        <!-- ผลรวม -->
                         <td class="{% if row.get('ผลรวม', '')|string|trim == 'ครบ' %}complete{% else %}incomplete{% endif %}">
                             {{ row.get("ผลรวม", "-") }}
                         </td>
@@ -490,3 +536,4 @@
 
 </body>
 </html>
+```

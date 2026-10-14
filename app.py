@@ -1,4 +1,4 @@
-
+```python
 from flask import Flask, render_template, request
 from inference_sdk import InferenceHTTPClient, InferenceConfiguration
 from PIL import Image, ImageDraw, ImageOps
@@ -138,7 +138,7 @@ def home():
             "shoes": (255, 140, 0)
         }
 
-        # วาด Bounding Box
+        # วาด Bounding Box โดยไม่แสดงเปอร์เซ็นต์
         for p in normalized_predictions:
             x = p["x"]
             y = p["y"]
@@ -161,10 +161,8 @@ def home():
                 width=10
             )
 
-            label = (
-                f'{p["class"]} '
-                f'{p["confidence"]:.0%}'
-            )
+            # แสดงเฉพาะชื่ออุปกรณ์
+            label = p["class"]
 
             draw.text(
                 (left + 3, max(3, top - 25)),
@@ -197,7 +195,7 @@ def home():
             "shoes": None
         }
 
-        # หาค่า Confidence สูงสุด
+        # หาค่า Confidence สูงสุดของแต่ละอุปกรณ์
         for p in normalized_predictions:
             cls = p["class"]
             confidence = p["confidence"]
@@ -339,7 +337,7 @@ def history():
             elif status_value == "ไม่ครบ":
                 daily_data[date]["ไม่ครบ"] += 1
 
-        # เรียงวันที่ โดยรองรับวันที่รูปแบบ DD/MM/YYYY
+        # เรียงวันที่รูปแบบ DD/MM/YYYY
         def parse_date(value):
             try:
                 return datetime.strptime(value, "%d/%m/%Y")
@@ -392,3 +390,4 @@ if __name__ == "__main__":
         port=int(os.environ.get("PORT", 5000)),
         debug=False
     )
+```

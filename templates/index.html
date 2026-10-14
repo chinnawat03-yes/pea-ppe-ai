@@ -1,3 +1,4 @@
+```html
 <!DOCTYPE html>
 <html lang="th">
 <head>
@@ -7,7 +8,6 @@
     <title>PEA PPE AI</title>
 
     <style>
-
         * {
             box-sizing: border-box;
         }
@@ -131,10 +131,6 @@
             background: #23272b;
         }
 
-        /* =========================
-           คำแนะนำการบันทึกรูป
-           ========================= */
-
         .save-help {
             display: none;
             margin-top: 15px;
@@ -144,11 +140,6 @@
             border-radius: 10px;
             text-align: left;
             line-height: 1.6;
-        }
-
-        .save-help strong {
-            display: block;
-            margin-bottom: 5px;
         }
 
         .save-help .android {
@@ -202,8 +193,22 @@
         }
 
         .confidence {
-            font-size: 22px;
+            font-size: 42px;
             font-weight: bold;
+            margin-top: 10px;
+        }
+
+        .ppe-found {
+            color: #28a745;
+        }
+
+        .ppe-missing {
+            color: #dc3545;
+        }
+
+        .ppe-label {
+            font-size: 15px;
+            margin-top: 4px;
         }
 
         .missing {
@@ -213,7 +218,6 @@
         }
 
         @media (max-width: 700px) {
-
             .container {
                 margin: 10px auto;
                 padding: 10px;
@@ -226,9 +230,7 @@
             header {
                 font-size: 22px;
             }
-
         }
-
     </style>
 </head>
 
@@ -238,28 +240,21 @@
     🦺 PEA PPE AI
 </header>
 
-
 <div class="container">
 
-    <!-- =========================
-         อัปโหลดรูป
-         ========================= -->
-
+    <!-- อัปโหลดรูป -->
     <div class="card">
-
         <h2>📷 ตรวจสอบอุปกรณ์ PPE</h2>
 
         <form method="POST" enctype="multipart/form-data">
-
-            <!-- ชื่อพนักงาน -->
             <input
                 type="text"
                 name="employee_name"
                 placeholder="👤 ชื่อพนักงาน"
+                value="{{ employee_name }}"
                 required
             >
 
-            <!-- รูปภาพ -->
             <input
                 type="file"
                 name="image"
@@ -267,26 +262,16 @@
                 required
             >
 
-            <button
-                type="submit"
-                class="check-button"
-            >
+            <button type="submit" class="check-button">
                 🔍 ตรวจสอบ PPE
             </button>
-
         </form>
-
     </div>
-
 
     {% if result_image %}
 
-    <!-- =========================
-         ผลตรวจ
-         ========================= -->
-
+    <!-- ผลตรวจ -->
     <div class="card result">
-
         <h2>📊 ผลการตรวจ</h2>
 
         <img
@@ -295,8 +280,6 @@
             alt="ผลการตรวจ PPE"
         >
 
-
-        <!-- ปุ่มบันทึก -->
         <button
             type="button"
             class="save-button"
@@ -305,362 +288,191 @@
             📥 บันทึกลงเครื่อง
         </button>
 
-
-        <!-- คำแนะนำ -->
-        <div
-            id="saveHelp"
-            class="save-help"
-        >
-
+        <div id="saveHelp" class="save-help">
             <strong>📱 วิธีบันทึกผลตรวจ</strong>
 
-            <div
-                id="androidHelp"
-                class="android"
-            >
+            <div id="androidHelp" class="android">
                 🤖 <strong>Android:</strong>
-                หลังจากกดบันทึก ให้เลือก
-                <strong>ดาวน์โหลด</strong>
-                หรือ
-                <strong>บันทึกรูปภาพ</strong>
-                ในเมนูที่แสดง
+                เลือกดาวน์โหลดหรือบันทึกรูปภาพในเมนูที่แสดง
             </div>
 
             <br>
 
-            <div
-                id="iphoneHelp"
-                class="iphone"
-            >
+            <div id="iphoneHelp" class="iphone">
                 🍎 <strong>iPhone / iPad:</strong>
-                หลังจากกดบันทึก ให้เลือก
-                <strong>บันทึกรูปภาพ / Save Image</strong>
-                ในเมนูแชร์
+                เลือกบันทึกรูปภาพ / Save Image ในเมนูแชร์
             </div>
 
             <br>
 
-            <div
-                id="computerHelp"
-                class="computer"
-            >
+            <div id="computerHelp" class="computer">
                 💻 <strong>คอมพิวเตอร์:</strong>
                 ระบบจะดาวน์โหลดรูปผลตรวจให้อัตโนมัติ
             </div>
-
         </div>
 
-
-        <!-- ตรวจรูปใหม่ -->
-        <a
-            href="/"
-            class="new-button"
-        >
+        <a href="/" class="new-button">
             🔄 ตรวจรูปใหม่
         </a>
 
-
-        <!-- ดูประวัติ -->
-        <a
-            href="/history"
-            class="history-button"
-        >
+        <a href="/history" class="history-button">
             📋 ดูประวัติการตรวจ
         </a>
-
     </div>
 
-
-    <!-- =========================
-         สถานะ
-         ========================= -->
-
+    <!-- สถานะรวม -->
     <div class="card">
-
         {% if status == "ครบ" %}
-
             <div class="status complete">
                 ✅ PPE ครบ
             </div>
-
         {% else %}
-
             <div class="status incomplete">
                 ⚠️ PPE ไม่ครบ
             </div>
-
         {% endif %}
 
-
         {% if missing_text %}
-
             <div class="missing">
                 <strong>อุปกรณ์ที่ขาด:</strong>
                 {{ missing_text }}
             </div>
-
         {% endif %}
-
     </div>
 
-
-    <!-- =========================
-         สรุป PPE
-         ========================= -->
-
+    <!-- รายละเอียด PPE -->
     <div class="card">
-
         <h2>🦺 รายละเอียด PPE</h2>
 
         <div class="ppe-grid">
 
-
             <!-- Helmet -->
             <div class="ppe-card">
-
                 <h3>🪖 Helmet</h3>
 
-                {% set ns = namespace(confidence=None) %}
-
+                {% set ns = namespace(found=false) %}
                 {% for item in detected_items %}
-
                     {% if item.class == "helmet" %}
-
-                        {% if ns.confidence is none or item.confidence > ns.confidence %}
-
-                            {% set ns.confidence = item.confidence %}
-
-                        {% endif %}
-
+                        {% set ns.found = true %}
                     {% endif %}
-
                 {% endfor %}
 
-                {% if ns.confidence is not none %}
-
-                    <div class="confidence">
-                        {{ "%.0f"|format(ns.confidence * 100) }}%
-                    </div>
-
+                {% if ns.found %}
+                    <div class="confidence ppe-found">✓</div>
+                    <div class="ppe-label">ตรวจพบ</div>
                 {% else %}
-
-                    <div class="confidence">
-                        -
-                    </div>
-
+                    <div class="confidence ppe-missing">✗</div>
+                    <div class="ppe-label">ไม่พบ</div>
                 {% endif %}
-
             </div>
-
 
             <!-- Vest -->
             <div class="ppe-card">
-
                 <h3>🦺 Vest</h3>
 
-                {% set ns = namespace(confidence=None) %}
-
+                {% set ns = namespace(found=false) %}
                 {% for item in detected_items %}
-
                     {% if item.class == "reflective_vest" %}
-
-                        {% if ns.confidence is none or item.confidence > ns.confidence %}
-
-                            {% set ns.confidence = item.confidence %}
-
-                        {% endif %}
-
+                        {% set ns.found = true %}
                     {% endif %}
-
                 {% endfor %}
 
-                {% if ns.confidence is not none %}
-
-                    <div class="confidence">
-                        {{ "%.0f"|format(ns.confidence * 100) }}%
-                    </div>
-
+                {% if ns.found %}
+                    <div class="confidence ppe-found">✓</div>
+                    <div class="ppe-label">ตรวจพบ</div>
                 {% else %}
-
-                    <div class="confidence">
-                        -
-                    </div>
-
+                    <div class="confidence ppe-missing">✗</div>
+                    <div class="ppe-label">ไม่พบ</div>
                 {% endif %}
-
             </div>
-
 
             <!-- Gloves -->
             <div class="ppe-card">
-
                 <h3>🧤 Gloves</h3>
 
-                {% set ns = namespace(confidence=None) %}
-
+                {% set ns = namespace(found=false) %}
                 {% for item in detected_items %}
-
                     {% if item.class == "gloves" %}
-
-                        {% if ns.confidence is none or item.confidence > ns.confidence %}
-
-                            {% set ns.confidence = item.confidence %}
-
-                        {% endif %}
-
+                        {% set ns.found = true %}
                     {% endif %}
-
                 {% endfor %}
 
-                {% if ns.confidence is not none %}
-
-                    <div class="confidence">
-                        {{ "%.0f"|format(ns.confidence * 100) }}%
-                    </div>
-
+                {% if ns.found %}
+                    <div class="confidence ppe-found">✓</div>
+                    <div class="ppe-label">ตรวจพบ</div>
                 {% else %}
-
-                    <div class="confidence">
-                        -
-                    </div>
-
+                    <div class="confidence ppe-missing">✗</div>
+                    <div class="ppe-label">ไม่พบ</div>
                 {% endif %}
-
             </div>
-
 
             <!-- Shoes -->
             <div class="ppe-card">
-
                 <h3>👞 Shoes</h3>
 
-                {% set ns = namespace(confidence=None) %}
-
+                {% set ns = namespace(found=false) %}
                 {% for item in detected_items %}
-
                     {% if item.class == "shoes" %}
-
-                        {% if ns.confidence is none or item.confidence > ns.confidence %}
-
-                            {% set ns.confidence = item.confidence %}
-
-                        {% endif %}
-
+                        {% set ns.found = true %}
                     {% endif %}
-
                 {% endfor %}
 
-                {% if ns.confidence is not none %}
-
-                    <div class="confidence">
-                        {{ "%.0f"|format(ns.confidence * 100) }}%
-                    </div>
-
+                {% if ns.found %}
+                    <div class="confidence ppe-found">✓</div>
+                    <div class="ppe-label">ตรวจพบ</div>
                 {% else %}
-
-                    <div class="confidence">
-                        -
-                    </div>
-
+                    <div class="confidence ppe-missing">✗</div>
+                    <div class="ppe-label">ไม่พบ</div>
                 {% endif %}
-
             </div>
 
-
         </div>
-
     </div>
 
     {% endif %}
-
 </div>
 
-
-<!-- =========================
-     JavaScript
-     ========================= -->
-
 <script>
-
 function detectDevice() {
-
     const userAgent =
         navigator.userAgent ||
         navigator.vendor ||
         window.opera;
 
-    const isAndroid =
-        /Android/i.test(userAgent);
+    const isAndroid = /Android/i.test(userAgent);
+    const isIPhone = /iPhone|iPad|iPod/i.test(userAgent);
 
-    const isIPhone =
-        /iPhone|iPad|iPod/i.test(userAgent);
+    const androidHelp = document.getElementById("androidHelp");
+    const iphoneHelp = document.getElementById("iphoneHelp");
+    const computerHelp = document.getElementById("computerHelp");
 
-    const androidHelp =
-        document.getElementById("androidHelp");
-
-    const iphoneHelp =
-        document.getElementById("iphoneHelp");
-
-    const computerHelp =
-        document.getElementById("computerHelp");
-
-
-    if (!androidHelp ||
-        !iphoneHelp ||
-        !computerHelp) {
-
+    if (!androidHelp || !iphoneHelp || !computerHelp) {
         return;
     }
 
-
     if (isAndroid) {
-
         androidHelp.style.display = "block";
         iphoneHelp.style.display = "none";
         computerHelp.style.display = "none";
-
-    }
-
-    else if (isIPhone) {
-
+    } else if (isIPhone) {
         androidHelp.style.display = "none";
         iphoneHelp.style.display = "block";
         computerHelp.style.display = "none";
-
-    }
-
-    else {
-
+    } else {
         androidHelp.style.display = "none";
         iphoneHelp.style.display = "none";
         computerHelp.style.display = "block";
-
     }
-
 }
 
-
-/* =========================
-   บันทึกผลตรวจ
-   ========================= */
-
 async function saveResultImage() {
-
-    const image =
-        document.getElementById("resultImage");
-
-    const help =
-        document.getElementById("saveHelp");
-
+    const image = document.getElementById("resultImage");
+    const help = document.getElementById("saveHelp");
 
     if (!image) {
-
         alert("ไม่พบรูปผลตรวจ");
-
         return;
-
     }
-
 
     detectDevice();
 
@@ -668,84 +480,35 @@ async function saveResultImage() {
         help.style.display = "block";
     }
 
-
     try {
-
-        /*
-         * โหลดรูปผลตรวจ
-         */
-
-        const response =
-            await fetch(
-                image.src,
-                {
-                    cache: "no-store"
-                }
-            );
-
+        const response = await fetch(image.src, {
+            cache: "no-store"
+        });
 
         if (!response.ok) {
-
-            throw new Error(
-                "ไม่สามารถโหลดรูปผลตรวจได้"
-            );
-
+            throw new Error("ไม่สามารถโหลดรูปผลตรวจได้");
         }
 
+        const blob = await response.blob();
 
-        const blob =
-            await response.blob();
-
-
-        /*
-         * สร้างไฟล์ JPG
-         */
-
-        const file =
-            new File(
-                [blob],
-                "PEA_PPE_Result.jpg",
-                {
-                    type: "image/jpeg"
-                }
-            );
-
-
-        /*
-         * =========================
-         * มือถือ
-         * ใช้ Share ของเครื่อง
-         * =========================
-         */
+        const file = new File(
+            [blob],
+            "PEA_PPE_Result.jpg",
+            { type: "image/jpeg" }
+        );
 
         if (
             navigator.share &&
             navigator.canShare &&
-            navigator.canShare({
-                files: [file]
-            })
+            navigator.canShare({ files: [file] })
         ) {
-
             await navigator.share({
-
                 files: [file],
-
                 title: "PEA PPE AI",
-
                 text: "ผลการตรวจ PPE"
-
             });
-
             return;
-
         }
-
-
-        /*
-         * =========================
-         * Fallback มือถือ
-         * =========================
-         */
 
         const userAgent =
             navigator.userAgent ||
@@ -753,83 +516,37 @@ async function saveResultImage() {
             window.opera;
 
         const isMobile =
-            /Android|iPhone|iPad|iPod/i.test(
-                userAgent
-            );
-
+            /Android|iPhone|iPad|iPod/i.test(userAgent);
 
         if (isMobile) {
-
-            window.open(
-                image.src,
-                "_blank"
-            );
-
+            window.open(image.src, "_blank");
             return;
-
         }
 
-
-        /*
-         * =========================
-         * คอมพิวเตอร์
-         * =========================
-         */
-
-        const url =
-            URL.createObjectURL(blob);
-
-
-        const link =
-            document.createElement("a");
-
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement("a");
 
         link.href = url;
-
-        link.download =
-            "PEA_PPE_Result.jpg";
-
+        link.download = "PEA_PPE_Result.jpg";
 
         document.body.appendChild(link);
-
         link.click();
-
         document.body.removeChild(link);
-
 
         URL.revokeObjectURL(url);
 
-    }
+    } catch (error) {
+        console.error("Save image error:", error);
 
-    catch (error) {
-
-        console.error(
-            "Save image error:",
-            error
-        );
-
-
-        if (
-            error &&
-            error.name === "AbortError"
-        ) {
-
+        if (error && error.name === "AbortError") {
             return;
-
         }
 
-
-        window.open(
-            image.src,
-            "_blank"
-        );
-
+        window.open(image.src, "_blank");
     }
-
 }
-
 </script>
-
 
 </body>
 </html>
+```

@@ -10,27 +10,15 @@ from datetime import datetime
 from zoneinfo import ZoneInfo
 
 app = Flask(__name__)
-
 os.makedirs("static", exist_ok=True)
-
-
-# =========================
-# Roboflow
-# =========================
 
 client = InferenceHTTPClient(
     api_url="https://serverless.roboflow.com",
     api_key=os.environ["ROBOFLOW_API_KEY"]
 ).configure(
-    InferenceConfiguration(
-        api_key_transport="header"
-    )
+    InferenceConfiguration(api_key_transport="header")
 )
 
-
-# =========================
-# Google Sheets
-# =========================
 
 def get_google_sheet():
     credentials_info = json.loads(
@@ -47,17 +35,12 @@ def get_google_sheet():
     )
 
     gc = gspread.authorize(credentials)
-
     sheet = gc.open_by_key(
         os.environ["GOOGLE_SHEET_ID"]
     ).sheet1
 
     return sheet
 
-
-# =========================
-# แปลงชื่อ Class จากโมเดล
-# =========================
 
 def normalize_class(class_name):
     class_map = {
@@ -70,10 +53,6 @@ def normalize_class(class_name):
 
     return class_map.get(class_name, class_name)
 
-
-# =========================
-# หน้าแรก
-# =========================
 
 @app.route("/", methods=["GET", "POST"])
 def home():
@@ -89,13 +68,11 @@ def home():
 
         file = request.files["image"]
 
-        # เตรียมรูป
         image = Image.open(file)
         image = ImageOps.exif_transpose(image)
         image = image.convert("RGB")
         image.save("upload.jpg")
 
-        # เรียก Roboflow
         result = client.run_workflow(
             workspace_name="chinnawat-kf2et",
             workflow_id="pea_ppe_detection",
@@ -103,7 +80,6 @@ def home():
             use_cache=False
         )
 
-        # เปิดรูปเพื่อวาดผล
         image = Image.open("upload.jpg").convert("RGB")
         draw = ImageDraw.Draw(image)
 
@@ -112,7 +88,6 @@ def home():
         detected_items = []
         normalized_predictions = []
 
-        # แปลงผล Prediction
         for p in predictions:
             cls = normalize_class(p["class"])
 
@@ -130,7 +105,6 @@ def home():
                 "confidence": p["confidence"]
             })
 
-        # สีของ Bounding Box
         colors = {
             "helmet": (255, 0, 0),
             "reflective_vest": (0, 102, 255),
@@ -138,7 +112,6 @@ def home():
             "shoes": (255, 140, 0)
         }
 
-        # วาด Bounding Box โดยไม่แสดงเปอร์เซ็นต์
         for p in normalized_predictions:
             x = p["x"]
             y = p["y"]
@@ -161,7 +134,7 @@ def home():
                 width=10
             )
 
-            # แสดงเฉพาะชื่ออุปกรณ์
+            # แสดงชื่อคลาสเท่านั้น ไม่แสดงเปอร์เซ็นต์
             label = p["class"]
 
             draw.text(
@@ -172,7 +145,6 @@ def home():
                 stroke_fill=(255, 255, 255)
             )
 
-        # สร้างชื่อไฟล์ผลตรวจ
         now = datetime.now(ZoneInfo("Asia/Bangkok"))
 
         result_filename = (
@@ -187,7 +159,6 @@ def home():
         image.save(result_path, quality=95)
         result_image = result_filename
 
-        # เตรียม PPE
         ppe = {
             "helmet": None,
             "reflective_vest": None,
@@ -195,7 +166,6 @@ def home():
             "shoes": None
         }
 
-        # หาค่า Confidence สูงสุดของแต่ละอุปกรณ์
         for p in normalized_predictions:
             cls = p["class"]
             confidence = p["confidence"]
@@ -207,7 +177,6 @@ def home():
                 ):
                     ppe[cls] = confidence
 
-        # ตรวจว่าครบหรือไม่
         total_found = sum(
             1 for value in ppe.values()
             if value is not None
@@ -215,7 +184,6 @@ def home():
 
         status = "ครบ" if total_found == 4 else "ไม่ครบ"
 
-        # หาว่าขาดอะไร
         item_names = {
             "helmet": "Helmet",
             "reflective_vest": "Vest",
@@ -235,7 +203,6 @@ def home():
             else "ไม่มี"
         )
 
-        # บันทึก Google Sheets
         try:
             sheet = get_google_sheet()
             now = datetime.now(ZoneInfo("Asia/Bangkok"))
@@ -272,7 +239,6 @@ def home():
         except Exception as e:
             print("Google Sheets Error:", e)
 
-    # แสดงหน้าเว็บ
     return render_template(
         "index.html",
         result_image=result_image,
@@ -282,20 +248,13 @@ def home():
     )
 
 
-# =========================
-# History Dashboard
-# =========================
-
 @app.route("/history")
 def history():
     try:
         sheet = get_google_sheet()
         records = sheet.get_all_records()
-
-        # เรียงข้อมูลล่าสุดขึ้นก่อน
         records.reverse()
 
-        # สรุปผลการตรวจสอบ
         total_count = len(records)
 
         complete_count = sum(
@@ -314,7 +273,6 @@ def history():
             else 0
         )
 
-        # สรุปผลแยกตามวันที่
         daily_data = {}
 
         for row in records:
@@ -337,10 +295,12 @@ def history():
             elif status_value == "ไม่ครบ":
                 daily_data[date]["ไม่ครบ"] += 1
 
-        # เรียงวันที่รูปแบบ DD/MM/YYYY
         def parse_date(value):
             try:
-                return datetime.strptime(value, "%d/%m/%Y")
+                return datetime.strptime(
+                    value,
+                    "%d/%m/%Y"
+                )
             except ValueError:
                 return datetime.min
 
@@ -349,7 +309,6 @@ def history():
             key=parse_date
         )
 
-        # แสดง 14 วันที่มีรายการล่าสุด
         chart_dates = sorted_dates[-14:]
 
         chart_complete = [
@@ -362,7 +321,6 @@ def history():
             for date in chart_dates
         ]
 
-        # ส่งข้อมูลไปยังหน้า Dashboard
         return render_template(
             "history.html",
             records=records,
@@ -379,10 +337,6 @@ def history():
         print("History Error:", e)
         return f"เกิดข้อผิดพลาดในการโหลดประวัติ: {e}"
 
-
-# =========================
-# Run
-# =========================
 
 if __name__ == "__main__":
     app.run(
